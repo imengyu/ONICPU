@@ -137,7 +137,8 @@ namespace ONICPU.digit
                 Update7Seg(kbac, -1, 1);
               }
               for (; index < maxCount; index++)
-                Update7Seg(kbac, index, MAX_SEG_VALUE);            }
+                Update7Seg(kbac, index, MAX_SEG_VALUE);
+            }
             break;
           }
       }
@@ -149,7 +150,7 @@ namespace ONICPU.digit
       new short[] { 1,2,3,4,7,8,9,0 },  //b
       new short[] { 1,3,4,5,6,7,8,9,0 },//c
       new short[] { 2,3,5,6,8,9,0 },    //d
-      new short[] { 2,6,0 },            //e
+      new short[] { 2,6,0,8 },          //e
       new short[] { 4,5,6,8,9,0 },      //f
       new short[] { 2,3,4,5,6,8,9 },    //g
     };
