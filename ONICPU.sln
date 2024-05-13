@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ONICPU", "ONICPU\ONICPU.csproj", "{BB625805-D82F-4A4E-A55F-985B98A90D18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CPUTest", "CPUTest\CPUTest.csproj", "{713FCB63-DCEE-46D2-9E47-4416A6130CA0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB625805-D82F-4A4E-A55F-985B98A90D18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB625805-D82F-4A4E-A55F-985B98A90D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB625805-D82F-4A4E-A55F-985B98A90D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB625805-D82F-4A4E-A55F-985B98A90D18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{713FCB63-DCEE-46D2-9E47-4416A6130CA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{713FCB63-DCEE-46D2-9E47-4416A6130CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{713FCB63-DCEE-46D2-9E47-4416A6130CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{713FCB63-DCEE-46D2-9E47-4416A6130CA0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {996D503A-F01A-410F-8787-25B5F52F3AB8}
+	EndGlobalSection
+EndGlobal
