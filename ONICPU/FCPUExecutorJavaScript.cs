@@ -98,7 +98,48 @@ function __getbit(invalue, bit) {
   return (invalue >> bit) & 0x1;
 }
 function __changebit(invalue, bit, value) {
-  return invalue & ((value & 0x1) << bit);
+  if (value)
+    return invalue | (0x1 << bit);
+  else
+    return invalue & (0xffffffff ^ (0x1 << bit));
+}
+function __tickEntry() {
+  __timerEntry();
+  if (typeof tick === 'function')
+    tick();
+  else
+    __shutdown('Tick: Your program dose not have tick function');
+}
+var __timerId = 0;
+var __timerStorage = new Map();
+function __timerEntry() {
+  for (let id of __timerStorage.keys()) {
+    let timer = __timerStorage.get(id);
+    timer.tick++;
+    if (timer.tick >= timer.loop) {
+      if (typeof timer.cb === 'function')
+        timer.cb();
+      timer.tick = 0;
+      if (timer.once)
+        __stopTimer(id);
+    }
+  }
+}
+function __timer(second, cb, once = false) {
+  __timerId++;
+  __timerStorage.set(__timerId, {
+    tick: 0,
+    loop: Math.floor(second * 5),
+    once,
+    cb,
+  });
+  return __timerId;
+}
+function __stopTimer(id) {
+  __timerStorage.delete(id);
+}
+function __stopAllTimer() {
+  __timerStorage.clear();
 }
 ";
 
@@ -115,7 +156,7 @@ function __changebit(invalue, bit, value) {
       catch (Exception e)
       {
         Debug.Log(e.ToString());
-        return "CompileProgram Error: " + e.Message;
+        return e.Message;
       }
       try
       {
@@ -144,7 +185,7 @@ function __changebit(invalue, bit, value) {
         });
         module.Context.DefineVariable("__reset").Assign(module.Context.GlobalContext.ProxyValue(@delegate1));
 
-        var variable = module.Context.GetVariable("tick");
+        var variable = module.Context.GetVariable("__tickEntry");
         tick = variable != null ? variable.As<Function>() : null;
         variable = module.Context.GetVariable("start");
         start = variable != null ? variable.As<Function>() : null;
@@ -159,13 +200,13 @@ function __changebit(invalue, bit, value) {
       catch (Exception e)
       {
         Debug.Log(e.ToString());
-        return "EvalProgram Error: " + e.Message;
+        return e.Message;
       }
     }
 
     private Arguments emptyArguments = new Arguments();
 
-    private void HandleError(Exception eo, string prefix = "Call Error: ")
+    private void HandleError(Exception eo, string prefix = "Call: ")
     {
       if (eo.GetType() == typeof(JSException))
       {
@@ -219,8 +260,13 @@ function __changebit(invalue, bit, value) {
       if (__internalErrorState != null && !__internalErrorState.IsNull)
       {
         var message = __internalErrorState.As<string>();
-        onError.Invoke(message);
-        State = FCPUState.HaltByUser;
+        if (string.IsNullOrEmpty(message))
+          State = FCPUState.HaltByUser;
+        else
+        {
+          onError.Invoke(message);
+          State = FCPUState.HaltByError;
+        }
       }
     }
     private void ResetAll()
@@ -258,7 +304,7 @@ function __changebit(invalue, bit, value) {
       }
       catch (Exception e)
       {
-        HandleError(e, "Call __saveStorage Error: ");
+        HandleError(e, "SaveStorage: ");
       }
       restoreData.StorageData = StorageData;
       return JsonConvert.SerializeObject(restoreData);
@@ -275,7 +321,7 @@ function __changebit(invalue, bit, value) {
       }
       catch (Exception e)
       {
-        HandleError(e, "Start preinit Error: ");
+        HandleError(e, "StartPreinit: ");
         return;
       }
       if (start != null)
@@ -294,7 +340,7 @@ function __changebit(invalue, bit, value) {
         }
         catch(Exception e)
         {
-          HandleError(e, "Call start Error: ");
+          HandleError(e, "Start: ");
         }
       }
     }
@@ -312,7 +358,7 @@ function __changebit(invalue, bit, value) {
         }
         catch (Exception e)
         {
-          HandleError(e, "Call stop Error: ");
+          HandleError(e, "Stop: ");
         }
       }
     }
@@ -325,26 +371,22 @@ function __changebit(invalue, bit, value) {
     {
       if (State == FCPUState.Looping) 
       {
-        if (tick == null)
+        if (tick != null)
         {
-          onError.Invoke("Tick program Error: Your program dose not have tick function");
-          State = FCPUState.HaltByError;
-          return;
-        }
+          try
+          {
+            AssianValues();
 
-        try
-        {
-          AssianValues();
+            resetCalled = false;
+            tick.Call(emptyArguments);
 
-          resetCalled = false;
-          tick.Call(emptyArguments);
-
-          if (!resetCalled)
-            UpdateValues();
-        }
-        catch (Exception e)
-        {
-          HandleError(e, "Tick program Error: ");
+            if (!resetCalled)
+              UpdateValues();
+          }
+          catch (Exception e)
+          {
+            HandleError(e, "Tick: ");
+          }
         }
       }
     }

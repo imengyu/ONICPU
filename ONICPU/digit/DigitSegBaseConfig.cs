@@ -30,7 +30,7 @@ namespace ONICPU.digit
       );
       obj.ViewMode = OverlayModes.Logic.ID;
       obj.ObjectLayer = ObjectLayer.LogicGate;
-      obj.SceneLayer = Grid.SceneLayer.LogicGates;
+      obj.SceneLayer = Grid.SceneLayer.Building;
       obj.ThermalConductivity = 0.05f;
       obj.Floodable = false;
       obj.Overheatable = false;

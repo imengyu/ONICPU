@@ -217,7 +217,7 @@ namespace ONICPU
     private const int buttonBarHeight = 40;
     private const int allHeight = 6400;
     private const int lineCodeWidth = 40;
-    private const float lineHeight = 19.125f;
+    private const float lineHeight = 20.74f;
 
     public static void MakeEditorUI()
     {
@@ -485,7 +485,7 @@ namespace ONICPU
       //Debug.Log("5");
 
       float y = 0;
-      for (int i = 0; i < 256; i++)
+      for (int i = 0; i < 300; i++)
       {
         AddTextLine((i + 1).ToString(), $"Line{i}", lineCodeWidth, lineHeight, 0, -y, ProgramInputLineTextRectTransform);
         AddImageLine(SpriteBreakpoint, $"BreakPoint{i}", lineHeight, lineHeight, -y, ProgramInputLineTextRectTransform);
