@@ -37,6 +37,7 @@ namespace ONICPU
       ModUtil.AddBuildingToPlanScreen("Automation", DigitRadiationSensorConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitTimeOfDaySensorConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitWattageSensorConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Automation", DigitConstantConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Power", DigitBatteryConfig.ID, SubcategoryID);
     }
 
@@ -65,6 +66,7 @@ namespace ONICPU
       Utils.AddBuildingToTechnology("LogicCircuits", DigitTimeOfDaySensorConfig.ID);
       Utils.AddBuildingToTechnology("LogicCircuits", DigitWattageSensorConfig.ID);
       Utils.AddBuildingToTechnology("LogicCircuits", DigitBatteryConfig.ID);
+      Utils.AddBuildingToTechnology("LogicCircuits", DigitConstantConfig.ID);
     }
   }
 
@@ -85,6 +87,8 @@ namespace ONICPU
       List<SideScreenRef> sideScreens = typeof(DetailsScreen)
         .GetField("sideScreens", BindingFlags.NonPublic | BindingFlags.Instance)
         .GetValue(__instance) as List<SideScreenRef>;
+
+      UIUtils.GetKleiInternalPrefabs();
 
       CritterSensorSideScreen critterSensorSideScreen = null;
       LogicBitSelectorSideScreen logicBitSelectorSideScreen = null;
@@ -147,7 +151,7 @@ namespace ONICPU
         var digitPressureSensorSideScreen = digitPressureSensorSideScreenObject.AddComponent<DigitPressureSensorSideScreen>();
         digitPressureSensorSideScreenObject.name = "DigitPressureSensorSideScreen";
 
-        var content = digitPressureSensorSideScreenObject.transform.Find("Contents");
+        var content = digitPressureSensorSideScreenObject.transform.Find("Contents") as RectTransform;
         var CheckboxPrefab = content.transform.Find("CheckboxGroup");
         CheckboxPrefab.transform.GetChild(0).gameObject.AddComponent<CheckboxFixed>();
         oldScreen = digitPressureSensorSideScreenObject.GetComponent<CritterSensorSideScreen>();
@@ -189,7 +193,7 @@ namespace ONICPU
 
         var digitCommonSensorSideScreenObject = Object.Instantiate(critterSensorSideScreen.gameObject);
         var digitCommonSensorSideScreen = digitCommonSensorSideScreenObject.AddComponent<DigitCommonSensorSideScreen>();
-        content = digitCommonSensorSideScreenObject.transform.Find("Contents");
+        content = digitCommonSensorSideScreenObject.transform.Find("Contents") as RectTransform;
         digitCommonSensorSideScreenObject.name = "DigitCommonSensorSideScreen";
 
         var LabelPrefab = digitCommonSensorSideScreenObject.transform.Find("Contents/CheckboxGroup/Label");
@@ -222,14 +226,13 @@ namespace ONICPU
 
           var FCPUSideScreenObject = Object.Instantiate(critterSensorSideScreen.gameObject);
           var FCPUSideScreen = FCPUSideScreenObject.AddComponent<FCPUSideScreen>();
-          content = FCPUSideScreenObject.transform.Find("Contents");
+          content = FCPUSideScreenObject.transform.Find("Contents") as RectTransform;
           FCPUSideScreenObject.name = "FCPUSideScreen";
 
-          var KButtonPrefab = artableSelectionSideScreen.applyButton;
           oldScreen = FCPUSideScreen.GetComponent<CritterSensorSideScreen>();
           Object.Destroy(oldScreen);
 
-          FCPUSideScreen.editButton = Object.Instantiate(KButtonPrefab.gameObject, content).GetComponent<KButton>();
+          FCPUSideScreen.editButton = Object.Instantiate(UIUtils.KButtonPrefab.gameObject, content).GetComponent<KButton>();
           FCPUSideScreen.editButton.name = "EditButton";
           FCPUSideScreen.editButton.transform.Find("Label").GetComponent<LocText>().key = "STRINGS.UI.USERMENUACTIONS.FCPUMENU.NAME";
           FCPUSideScreen.editButton.GetComponent<ToolTip>().FixedStringKey = "STRINGS.UI.USERMENUACTIONS.FCPUMENU.TOOLTIP";
@@ -248,9 +251,91 @@ namespace ONICPU
             screenPrefab = FCPUSideScreen,
             offset = Vector2.zero,
           });
+
+          //DigitConstantSideScreen
+          //==================================
+
+          var DigitConstantSideScreenObject = Object.Instantiate(critterSensorSideScreen.gameObject);
+          var DigitConstantSideScreen = DigitConstantSideScreenObject.AddComponent<DigitConstantSideScreen>();
+          content = DigitConstantSideScreenObject.transform.Find("Contents") as RectTransform;
+          DigitConstantSideScreenObject.name = "DigitConstantSideScreen";
+
+          oldScreen = DigitConstantSideScreen.GetComponent<CritterSensorSideScreen>();
+          Object.Destroy(oldScreen);
+
+          for (int i = content.transform.childCount - 1; i >= 0; i--)
+          {
+            var item = content.transform.GetChild(i).gameObject;
+            if (item.name != "BodyBG")
+              item.SetActive(false);
+          }
+
+          const int ROW_SIZE = 8;
+
+          for (int i = 0; i < DigitConstantSideScreen.MAX_BIT / ROW_SIZE; i++)
+          {
+            var group = new GameObject();
+            var groupRectTransform = group.AddComponent<RectTransform>();
+            var groupLayoutElement = group.AddComponent<LayoutElement>();
+            var groupHorizontalLayoutGroup = group.AddComponent<HorizontalLayoutGroup>();
+            groupLayoutElement.minWidth = 260;
+            groupLayoutElement.minHeight = 23;
+            groupRectTransform.SetParent(content);
+
+            var lineText = UIUtils.AddTextLine(
+              $"{i * ROW_SIZE}-{i * ROW_SIZE + 7}",
+              "Tip", 30, 23, 0, 0, groupRectTransform
+            );
+            var lineTextLayoutElement = lineText.GetComponent<LayoutElement>();
+            lineTextLayoutElement.minWidth = 30;
+            lineTextLayoutElement.preferredWidth = 30;
+            lineText.color = Color.black;
+
+            for (int j = 0; j < ROW_SIZE; j++)
+            {
+              var index = i * ROW_SIZE + j;
+              var btn = Object.Instantiate(UIUtils.KButtonPrefab.gameObject, groupRectTransform).GetComponent<KButton>();
+              var btnText = btn.transform.GetChild(0).GetComponent<LocText>();
+              var btnRectTransform = btn.GetComponent<RectTransform>();
+              var btnLayoutElement = btn.GetComponent<LayoutElement>();
+              DigitConstantSideScreen.valueButtons[index] = btn;
+              DigitConstantSideScreen.valueButtonTexs[index] = btnText;
+              Object.Destroy(btn.GetComponent<ToolTip>());
+              btnRectTransform.sizeDelta = new Vector2(23, 23);
+              btnLayoutElement.minWidth = 23;
+              btnLayoutElement.minHeight = 23;
+              btnText.text = "";
+            }
+          }
+
+          var text = UIUtils.AddTextLine(
+            Utils.GetLocalizeString("STRINGS.BUILDINGS.PREFABS.DIGITCONST.LOGIC_PORT"),
+            "Tip", 260, 15, 0, 0, content
+          );
+          text.color = Color.black;
+
+          var input = Object.Instantiate(UIUtils.KInputFieldPrefab.gameObject, content).GetComponent<KInputField>();
+          DigitConstantSideScreen.valueInput = input.field;
+          DigitConstantSideScreen.valueInput.gameObject.AddComponent<LayoutElement>().minWidth = 260;
+
+          DigitConstantSideScreen.valueApplyButton = UIUtils.AddButtonLine(
+            "",
+            "STRINGS.UI.UISIDESCREENS.DIGITCONST.APPLY",
+            "STRINGS.UI.UISIDESCREENS.DIGITCONST.APPLY_INPUT", 0, 0, content,
+            null
+          );
+          UIUtils.AddSpaceLine(260, 10, content);
+
+          sideScreens.Add(new SideScreenRef()
+          {
+            name = DigitConstantSideScreenObject.name,
+            screenPrefab = DigitConstantSideScreen,
+            offset = Vector2.zero,
+          });
+
         }
       }
-      //Fix LogicBitSelectorSideScreen to high
+      //Fix LogicBitSelectorSideScreen too high
       if (logicBitSelectorSideScreen)
       {
         var rect = logicBitSelectorSideScreen.rowPrefab.GetComponent<RectTransform>();

@@ -58,28 +58,28 @@
           public static LocString NAME = global::STRINGS.UI.FormatAsLink("Digit Thermo Sensor", "DIGITTEMPERATURESENSOR");
           public static LocString DESC = "Thermo sensors can disable buildings when they approach dangerous temperatures.";
           public static LocString EFFECT = "Sends a 16bit digit temperature value to network.";
-          public static LocString LOGIC_PORT = "16-Bit intager " + global::STRINGS.UI.FormatAsLink("Temperature", "HEAT") + " value";
+          public static LocString LOGIC_PORT = "16-Bit integer " + global::STRINGS.UI.FormatAsLink("Temperature", "HEAT") + " value";
         }
         public class DIGITPRESSURESENSORGAS
         {
           public static LocString NAME = global::STRINGS.UI.FormatAsLink("Digit Atmo Sensor", "DIGITPRESSURESENSORGAS");
           public static LocString DESC = "Atmo sensors can be used to prevent excess oxygen production and overpressurization.";
           public static LocString EFFECT = "Sends a 16bit digit Gas Pressure value to network.";
-          public static LocString LOGIC_PORT = "16-Bit intager " + global::STRINGS.UI.FormatAsLink("Gas", "ELEMENTS_GAS") + " Pressure";
+          public static LocString LOGIC_PORT = "16-Bit integer " + global::STRINGS.UI.FormatAsLink("Gas", "ELEMENTS_GAS") + " Pressure";
         }
         public class DIGITPRESSURESENSORLIQUID
         {
           public static LocString NAME = global::STRINGS.UI.FormatAsLink("Digit Hydro Sensor", "DIGITPRESSURESENSORLIQUID");
           public static LocString DESC = "A hydro sensor can tell a pump to refill its basin as soon as it contains too little liquid.";
           public static LocString EFFECT = "Sends a 16bit digit Liquid Pressure value to network.";
-          public static LocString LOGIC_PORT = "16-Bit intager " + global::STRINGS.UI.FormatAsLink("Liquid", "ELEMENTS_LIQUID") + " Pressure";
+          public static LocString LOGIC_PORT = "16-Bit integer " + global::STRINGS.UI.FormatAsLink("Liquid", "ELEMENTS_LIQUID") + " Pressure";
         }
         public class DIGITLIGHTSENSOR 
         {
           public static LocString NAME = global::STRINGS.UI.FormatAsLink("Digit Light Sensor", "DIGITLIGHTSENSOR");
           public static LocString DESC = "Light sensors can tell surface bunker doors above solar panels to open or close based on solar light levels.";
           public static LocString EFFECT = "Sends a 16bit digit Ambient Brightness value to network.";
-          public static LocString LOGIC_PORT = "16-Bit intager Ambient " + global::STRINGS.UI.FormatAsLink("Brightness", "LIGHT");
+          public static LocString LOGIC_PORT = "16-Bit integer Ambient " + global::STRINGS.UI.FormatAsLink("Brightness", "LIGHT");
         }
         public class DIGITWATTAGESENSOR
         {
@@ -124,6 +124,14 @@
           public static LocString DESC = "Smart batteries send a charge percentage value (0-100) to network.";
           public static LocString EFFECT = "Stores " + global::STRINGS.UI.FormatAsLink("Power", "POWER") + " from generators, then provides that power to buildings.\n\nSends a charge percentage value (0-100) to network.\n\nVery slightly loses charge over time.";
         }
+
+        public class DIGITCONST
+        {
+          public static LocString NAME = global::STRINGS.UI.FormatAsLink("Digit constant", "DIGITCONST");
+          public static LocString DESC = "Output constant signals to the network.";
+          public static LocString EFFECT = "A configurable constant outputer.";
+          public static LocString LOGIC_PORT = "32-Bit integer number";
+        }
       }
     }
     public class UI
@@ -138,6 +146,14 @@
         {
           public static LocString PRECENT = "Percentage of a day";
         }
+        public class DIGITCONST
+        {
+          public static LocString SIDESCREEN_TITLE = "Set output value";
+          public static LocString ERROR_TITLE = "Error";
+          public static LocString NOT_A_VALID_NUMBER = "The value entered is not a valid integer";
+          public static LocString APPLY = "Apply";
+          public static LocString APPLY_INPUT = "Apply the value entered in the input box";          
+        }
         public class COMMONSENSOR
         {
           public static LocString SIDESCREEN_TITLE = "Current value";
@@ -149,6 +165,25 @@
           public static LocString RESET_BUTTON_TOOLTIP = "Reset\n\nFor JavaScript CPU, only reset io values,\nFor AssimbleCode CPU, reset all cpu data.";
           public static LocString PLAYPAUSE_BUTTON_TOOLTIP = "Start/Pause";
           public static LocString STEP_BUTTON_TOOLTIP = "Step over";
+          public static LocString CLEAR_BUTTON = "Clear";
+          public static LocString CLEAR_BUTTON_TOOLTIP = "Clear all logs";
+
+          public static LocString EDITOR_TITLE = "Edit program for this CPU Unit";
+          public static LocString EDITOR_LOG_TITLE = "Log details";
+          public static LocString EDITOR_STATUS_TITLE = "Status details";
+          public static LocString EDITOR_COPY = "Copy";
+          public static LocString EDITOR_CLOSE = "Close";
+          public static LocString EDITOR_COMPILE = "Compile";
+          public static LocString EDITOR_PASTE = "Paste";
+
+          public static LocString SUB_TITLE_LOGS = "Logs";
+          public static LocString SUB_TITLE_INPUTS = "Inputs";
+          public static LocString SUB_TITLE_OUTPUTS = "Outputs";
+          public static LocString SUB_TITLE_REGS = "Registers";
+          public static LocString SUB_TITLE_MEM = "Memory";
+
+          public static LocString NO_LOGS = "No log output";
+
         }
       }
       public class USERMENUACTIONS

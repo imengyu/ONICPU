@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Security.AccessControl;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -184,11 +183,39 @@ namespace ONICPU
 
         if (executor.GetType() == typeof(FCPUExecutorJavaScript))
         {
+          bool noEmpty = false;
           for (int i = 0; i < logTexts.Length && i < ((FCPUExecutorJavaScript)executor).Logs.Count; i++)
-            logTexts[i].text = ((FCPUExecutorJavaScript)executor).Logs[i];
+          {
+            var text = ((FCPUExecutorJavaScript)executor).Logs[i];
+            logTexts[i].text = text;
+            if (!noEmpty && !string.IsNullOrEmpty(text))
+              noEmpty = true;
+          }
+          if (!noEmpty)
+            logTexts[0].text = Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.NO_LOGS");
         }
 
         PlayPauseButton.fgImage.sprite = executor.State == FCPUState.Looping ? SpritePause : SpritePlay;
+      }
+    }
+
+    private void ShowLogFullText(int index)
+    {
+      if (executor.GetType() == typeof(FCPUExecutorJavaScript))
+      {
+        var logs = ((FCPUExecutorJavaScript)executor).Logs;
+        if (index < logs.Count)
+          onShowFullLog(logs[index]);
+      }
+    }
+    private void ClearLogs()
+    {
+      if (executor.GetType() == typeof(FCPUExecutorJavaScript))
+      {
+        var logs = ((FCPUExecutorJavaScript)executor).Logs;
+        for (int i = 0; i < logs.Count; i++)
+          logs[i] = "";
+        FlushInfo();
       }
     }
 
@@ -202,11 +229,6 @@ namespace ONICPU
     public static Sprite SpriteNext = null;
     public static Sprite SpritePause = null;
     public static Sprite SpritePlay = null;
-    public static KInputField KInputFieldPrefab = null;
-    public static LocText LocTextPrefab = null;
-    public static KButton KButtonPrefab = null;
-    public static KScrollRect KScrollRectPrefab = null;
-    public static Scrollbar ScrollbarPrefab = null;
 
     private const int padding = 12;
     private const int width = 700;
@@ -237,97 +259,8 @@ namespace ONICPU
       var RectTransform = ProgramEditorPanel.AddComponent<RectTransform>();
       UIAnchorPosUtils.SetUIAnchor(RectTransform, UIAnchor.Stretch, UIAnchor.Top);
 
-      Debug.Log("Get Prefabs");
-
-      //Access private prefabs in DetailsScreen
-      FieldInfo fieldInfoSideScreens = typeof(DetailsScreen).GetField("sideScreens", BindingFlags.NonPublic | BindingFlags.Instance);
-      FieldInfo fieldInfonameInputField = typeof(AlarmSideScreen).GetField("nameInputField", BindingFlags.NonPublic | BindingFlags.Instance);
-      FieldInfo activateLabelField = typeof(ActiveRangeSideScreen).GetField("activateLabel", BindingFlags.NonPublic | BindingFlags.Instance);
-      FieldInfo skillsScreenlField = typeof(ManagementMenu).GetField("skillsScreen", BindingFlags.NonPublic | BindingFlags.Instance);
-      FieldInfo skillsScreenscrollRectField = typeof(SkillsScreen).GetField("scrollRect", BindingFlags.NonPublic | BindingFlags.Instance);
-
-      //Found AlarmSideScreen it contains KInputField prefab
-      List<SideScreenRef> sideScreens = fieldInfoSideScreens.GetValue(DetailsScreen.Instance) as List<SideScreenRef>;
-      if (sideScreens == null)
-      {
-        Debug.LogError("sideScreens is null, maybe game was updated");
+      if (!UIUtils.GetKleiInternalPrefabs())
         return;
-      }
-      SideScreenRef alarmSideScreenRef = null;
-      SideScreenRef activeRangeSideScreenRef = null;
-      SideScreenRef artableSelectionSideScreenRef = null;
-      foreach (var sideScreenRef in sideScreens)
-      {
-        if (sideScreenRef.screenPrefab is AlarmSideScreen)
-        {
-          alarmSideScreenRef = sideScreenRef;
-          Debug.Log("Found AlarmSideScreen");
-        }
-        else if (sideScreenRef.screenPrefab is ActiveRangeSideScreen)
-        {
-          activeRangeSideScreenRef = sideScreenRef;
-          Debug.Log("Found ActiveRangeSideScreen");
-        }
-        else if (sideScreenRef.screenPrefab is ArtableSelectionSideScreen)
-        {
-          artableSelectionSideScreenRef = sideScreenRef;
-          Debug.Log("Found ArtableSelectionSideScreenRef");
-        }
-      }
-      if (alarmSideScreenRef == null)
-      {
-        Debug.LogError("AlarmSideScreen NOT FOUND, maybe game was updated");
-        return;
-      }
-      if (activeRangeSideScreenRef == null)
-      {
-        Debug.LogError("activeRangeSideScreen NOT FOUND, maybe game was updated");
-        return;
-      }
-      if (artableSelectionSideScreenRef == null)
-      {
-        Debug.LogError("artableSelectionSideScreenRef NOT FOUND, maybe game was updated");
-        return;
-      }
-      SkillsScreen skillsScreen = skillsScreenlField.GetValue(ManagementMenu.Instance) as SkillsScreen;
-      if (skillsScreen == null)
-      {
-        Debug.LogError("ManagementMenu.Instance.skillsScreen NOT FOUND, maybe game was updated");
-        return;
-      }
-
-      //Get prefabs
-      KInputFieldPrefab = fieldInfonameInputField.GetValue(alarmSideScreenRef.screenPrefab) as KInputField;
-      LocTextPrefab = activateLabelField.GetValue(activeRangeSideScreenRef.screenPrefab) as LocText;
-      KButtonPrefab = (artableSelectionSideScreenRef.screenPrefab as ArtableSelectionSideScreen).applyButton;
-      KScrollRectPrefab = skillsScreenscrollRectField.GetValue(skillsScreen) as KScrollRect;
-      KScrollRectPrefab = skillsScreenscrollRectField.GetValue(skillsScreen) as KScrollRect;
-      ScrollbarPrefab = DetailsScreen.Instance.transform.Find("Body/Scrollbar").gameObject.GetComponent<Scrollbar>();
-      if (KInputFieldPrefab == null)
-      {
-        Debug.LogError("KInputFieldPrefab is null, maybe game was updated");
-        return;
-      }
-      if (LocTextPrefab == null)
-      {
-        Debug.LogError("LocTextPrefab is null, maybe game was updated");
-        return;
-      }
-      if (KButtonPrefab == null)
-      {
-        Debug.LogError("ButtonPrefab is null, maybe game was updated");
-        return;
-      }
-      if (KScrollRectPrefab == null)
-      {
-        Debug.LogError("ScrollRectPrefab is null, maybe game was updated");
-        return;
-      }
-      if (ScrollbarPrefab == null)
-      {
-        Debug.LogError("ScrollbarPrefab is null, maybe game was updated");
-        return;
-      }
 
       Debug.Log("Create UI");
 
@@ -349,7 +282,7 @@ namespace ONICPU
 
       //Top
 
-      var ProgramStatusText = UnityEngine.Object.Instantiate(LocTextPrefab.gameObject, RectTransform);
+      var ProgramStatusText = UnityEngine.Object.Instantiate(UIUtils.LocTextPrefab.gameObject, RectTransform);
       var ProgramStatusTextRectTransform = ProgramStatusText.GetComponent<RectTransform>();
       var ProgramStatusTextText = ProgramStatusText.GetComponent<LocText>();
       ProgramStatusText.name = "ProgramStatusText";
@@ -361,6 +294,7 @@ namespace ONICPU
       UIAnchorPosUtils.SetUITop(ProgramStatusTextRectTransform, padding);
       ProgramStatusTextText.color = TextNormalColor;
       ProgramStatusTextText.alignment = TextAlignmentOptions.TopLeft;
+      ProgramStatusTextText.overflowMode = TextOverflowModes.Ellipsis;
 
       //Debug.Log("1");
 
@@ -380,7 +314,7 @@ namespace ONICPU
       var EmptyImageRectTransform = EmptyImage.AddComponent<RectTransform>();
       var EmptyImageImage = EmptyImage.AddComponent<Image>();
 
-      var StopButton = Instantiate(KButtonPrefab.gameObject, ButtonBarRectTransform);
+      var StopButton = Instantiate(UIUtils.KButtonPrefab.gameObject, ButtonBarRectTransform);
       EmptyImageRectTransform.SetParent(StopButton.transform);
       EmptyImageRectTransform.sizeDelta = new Vector2(23, 23);
       EmptyImageRectTransform.anchoredPosition = new Vector2(0, 0);
@@ -434,7 +368,7 @@ namespace ONICPU
 
       //Editor area
 
-      var ScrollRect = UnityEngine.Object.Instantiate(KScrollRectPrefab.gameObject, RectTransform);
+      var ScrollRect = UnityEngine.Object.Instantiate(UIUtils.KScrollRectPrefab.gameObject, RectTransform);
       var ScrollRectTransform = ScrollRect.GetComponent<RectTransform>();
       var ScrollRectScrollRect = ScrollRect.GetComponent<KScrollRect>();
       ScrollRect.name = "ScrollRect";
@@ -462,7 +396,7 @@ namespace ONICPU
 
       //Debug.Log("4");
 
-      var ProgramInputField = Instantiate(KInputFieldPrefab.gameObject, ScrollRectContentRectTransform);
+      var ProgramInputField = Instantiate(UIUtils.KInputFieldPrefab.gameObject, ScrollRectContentRectTransform);
       var ProgramInputFieldInputField = ProgramInputField.GetComponent<KInputField>();
       var ProgramInputFieldRectTransform = ProgramInputField.GetComponent<RectTransform>();
       ProgramInputField.name = "ProgramInputField";
@@ -487,8 +421,8 @@ namespace ONICPU
       float y = 0;
       for (int i = 0; i < 300; i++)
       {
-        AddTextLine((i + 1).ToString(), $"Line{i}", lineCodeWidth, lineHeight, 0, -y, ProgramInputLineTextRectTransform);
-        AddImageLine(SpriteBreakpoint, $"BreakPoint{i}", lineHeight, lineHeight, -y, ProgramInputLineTextRectTransform);
+        UIUtils.AddTextLine((i + 1).ToString(), $"Line{i}", lineCodeWidth, lineHeight, 0, -y, ProgramInputLineTextRectTransform);
+        UIUtils.AddImageLine(SpriteBreakpoint, $"BreakPoint{i}", lineHeight, lineHeight, -y, ProgramInputLineTextRectTransform);
         y += lineHeight;
       }
 
@@ -510,7 +444,7 @@ namespace ONICPU
       ProgramEditorPanelPrefabLayoutElement.preferredHeight = height;
       ProgramEditorPanelPrefabLayoutElement.flexibleHeight = 0f;
 
-      var Scrollbar = Instantiate(ScrollbarPrefab.gameObject, RectTransform);
+      var Scrollbar = Instantiate(UIUtils.ScrollbarPrefab.gameObject, RectTransform);
       var ScrollbarRectTransform = Scrollbar.GetComponent<RectTransform>();
       Scrollbar.name = "Scrollbar";
       UIAnchorPosUtils.SetUIPivot(ScrollbarRectTransform, UIPivot.TopLeft);
@@ -541,13 +475,22 @@ namespace ONICPU
         {
           lineTexts[line] = lineText.GetComponent<LocText>();
           var button = lineText.gameObject.AddComponent<KButton>();
-          button.soundPlayer = KButtonPrefab.soundPlayer;
+          button.soundPlayer = UIUtils.KButtonPrefab.soundPlayer;
           button.onPointerUp += () =>
           {
             Debug.Log("ToggleBreakpointStateLine " + line);
             ToggleBreakpointStateLine(line);
           };
         }
+      }
+
+      {
+        var button = ProgramStatusText.gameObject.AddComponent<KButton>();
+        button.soundPlayer = UIUtils.KButtonPrefab.soundPlayer;
+        button.onPointerUp += () =>
+        {
+          onShowFullStatus(ProgramStatusText.text);
+        };
       }
 
 
@@ -584,6 +527,8 @@ namespace ONICPU
     public event System.Action onResetButtonClick;
     public event System.Action onPlayPauseButtonClick;
     public event System.Action onStepButtonClick;
+    public event System.Action<string> onShowFullLog;
+    public event System.Action<string> onShowFullStatus;
 
     private void MakeInfoUI()
     {
@@ -615,89 +560,67 @@ namespace ONICPU
         int startY = y;
         if (isAssemblyCodCpu)
         {
-          AddTextLine("Registers", "Text", STATUS_WIDTH3, 20, 0, -y, ProgramStatusLines, 16); y += 20;
+          UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_REGS"), "Text", STATUS_WIDTH3, 20, 0, -y, ProgramStatusLines, null, 16); y += 20;
           for (int i = 0; i < registerValueTexts.Length; i++)
           {
-            registerValueTexts[i] = AddTextLine($"reg{i} = ?", $"RegisterValue{i}", STATUS_WIDTH3, 15, 0, -y, ProgramStatusLines); y += 15;
+            registerValueTexts[i] = UIUtils.AddTextLine($"reg{i} = ?", $"RegisterValue{i}", STATUS_WIDTH3, 15, 0, -y, ProgramStatusLines); y += 15;
           }
           y = startY;
-          AddTextLine("Inputs", "Text", STATUS_WIDTH3, 20, STATUS_WIDTH3, -y, ProgramStatusLines, 16); y += 20;
+          UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_INPUTS"), "Text", STATUS_WIDTH3, 20, STATUS_WIDTH3, -y, ProgramStatusLines, null, 16); y += 20;
           for (int i = 0; i < inputValueTexts.Length; i++)
           {
-            inputValueTexts[i] = AddTextLine("", $"InputValue{i}", STATUS_WIDTH3, 15, STATUS_WIDTH3, -y, ProgramStatusLines); y += 15;
+            inputValueTexts[i] = UIUtils.AddTextLine("", $"InputValue{i}", STATUS_WIDTH3, 15, STATUS_WIDTH3, -y, ProgramStatusLines); y += 15;
           }
           y = startY;
-          AddTextLine("Outputs", "Text", STATUS_WIDTH3, 20, STATUS_WIDTH3 * 2, -y, ProgramStatusLines, 16); y += 20;
+          UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_OUTPUTS"), "Text", STATUS_WIDTH3, 20, STATUS_WIDTH3 * 2, -y, ProgramStatusLines, null, 16); y += 20;
           for (int i = 0; i < outputValueTexts.Length; i++)
           {
-            outputValueTexts[i] = AddTextLine("", $"OutputValue{i}", STATUS_WIDTH3, 15, STATUS_WIDTH3 * 2, -y, ProgramStatusLines); y += 15;
+            outputValueTexts[i] = UIUtils.AddTextLine("", $"OutputValue{i}", STATUS_WIDTH3, 15, STATUS_WIDTH3 * 2, -y, ProgramStatusLines); y += 15;
           }
         } 
         else
         {
-          AddTextLine("Inputs", "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, 16); y += 20;
+          UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_INPUTS"), "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, null, 16); y += 20;
           for (int i = 0; i < inputValueTexts.Length; i++)
           {
-            inputValueTexts[i] = AddTextLine("", $"InputValue{i}", rightWidth2, 15, leftWidth, -y, ProgramStatusLines); y += 15;
+            inputValueTexts[i] = UIUtils.AddTextLine("", $"InputValue{i}", rightWidth2, 15, leftWidth, -y, ProgramStatusLines); y += 15;
           }
           y += 20;
-          AddTextLine("Outputs", "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, 16); y += 20;
+          UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_OUTPUTS"), "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, null, 16); y += 20;
           for (int i = 0; i < outputValueTexts.Length; i++)
           {
-            outputValueTexts[i] = AddTextLine("", $"OutputValue{i}", rightWidth2, 15, leftWidth, -y, ProgramStatusLines); y += 15;
+            outputValueTexts[i] = UIUtils.AddTextLine("", $"OutputValue{i}", rightWidth2, 15, leftWidth, -y, ProgramStatusLines); y += 15;
           }
           y += 20;
-          AddTextLine("Logs", "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, 16); y += 20;
+          UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_LOGS"), "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, null, 16); y += 20;
+
+          UIUtils.AddButtonLine("",
+            "STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_BUTTON",
+            "STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_BUTTON_TOOLTIP",
+            leftWidth + 100, -y, ProgramStatusLines, ClearLogs, 100, 23
+          ); y += 23;
+
           for (int i = 0; i < logTexts.Length; i++)
           {
-            logTexts[i] = AddTextLine("", $"LogTexts{i}", rightWidth2, 15, leftWidth, -y, ProgramStatusLines); y += 15;
+            var index = i;
+            logTexts[i] = UIUtils.AddTextLine("", $"LogTexts{i}", 100, 15, leftWidth + 100, -y, ProgramStatusLines, () =>
+            {
+              ShowLogFullText(index);
+            }); y += 15;
           }
         }
 
         if (isAssemblyCodCpu)
         {
           y += 20;
-          AddTextLine("Memory", "Text", STATUS_WIDTH, 20, 0, -y, ProgramStatusLines, 16); y += 20;
-          AddTextLine("                   0                1                2                3                4", $"MemoryValue-1", STATUS_WIDTH, 15, 0, -y, ProgramStatusLines); y += 15;
+          UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_MEM"), "Text", STATUS_WIDTH, 20, 0, -y, ProgramStatusLines, null, 16); y += 20;
+          UIUtils.AddTextLine("                   0                1                2                3                4", $"MemoryValue-1", STATUS_WIDTH, 15, 0, -y, ProgramStatusLines); y += 15;
           for (int i = 0; i < memoryValueTexts.Length / 4; i++)
           {
-            memoryValueTexts[i] = AddTextLine($"{i}     0    0    0    0    0    0    0    0", $"MemoryValue{i}", STATUS_WIDTH, 15, 0, -y, ProgramStatusLines); y += 15;
+            memoryValueTexts[i] = UIUtils.AddTextLine($"{i}     0    0    0    0    0    0    0    0", $"MemoryValue{i}", STATUS_WIDTH, 15, 0, -y, ProgramStatusLines); y += 15;
           }
         }
       }
-    }
-
-    private static Image AddImageLine(Sprite sprite, string name, float width, float height, float y, RectTransform parent)
-    {
-      var BreakPoint = new GameObject(name);
-      var BreakPointRectTransform = BreakPoint.AddComponent<RectTransform>();
-      var BreakPointImage = BreakPoint.AddComponent<Image>();
-      BreakPoint.SetActive(false);
-      BreakPointImage.sprite = sprite;
-      BreakPointRectTransform.SetParent(parent);
-      UIAnchorPosUtils.SetUIPivot(BreakPointRectTransform, UIPivot.TopLeft);
-      UIAnchorPosUtils.SetUIAnchor(BreakPointRectTransform, UIAnchor.Left, UIAnchor.Top);
-      UIAnchorPosUtils.SetUILeft(BreakPointRectTransform, 0);
-      BreakPointRectTransform.sizeDelta = new Vector2(width, height);
-      BreakPointRectTransform.anchoredPosition = new Vector2(0, y);
-      return BreakPointImage;
-    }
-    private static LocText AddTextLine(string str, string name, float width, float height, float x, float y, RectTransform parent, float size = 13)
-    {
-      var LineText = Instantiate(LocTextPrefab.gameObject, parent);
-      var LineTextRectTransform = LineText.GetComponent<RectTransform>();
-      var LineTextText = LineText.GetComponent<LocText>();
-      LineText.name = name;
-      UIAnchorPosUtils.SetUIPivot(LineTextRectTransform, UIPivot.TopLeft);
-      UIAnchorPosUtils.SetUIAnchor(LineTextRectTransform, UIAnchor.Left, UIAnchor.Top);
-      UIAnchorPosUtils.SetUILeft(LineTextRectTransform, x);
-      LineTextRectTransform.sizeDelta = new Vector2(width, height);
-      LineTextRectTransform.anchoredPosition = new Vector2(LineTextRectTransform.anchoredPosition.x, y);
-      LineTextText.color = TextNormalColor;
-      LineTextText.alignment = TextAlignmentOptions.MidlineRight;
-      LineTextText.text = str;
-      LineTextText.fontSize = size;
-      return LineTextText;
     }
   }
 }

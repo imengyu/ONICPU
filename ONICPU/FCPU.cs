@@ -1,9 +1,11 @@
 ﻿using KSerialization;
+using NiL.JS.BaseLibrary;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using YamlDotNet.Core.Tokens;
 using static ONICPU.FCPUExecutor;
 
 namespace ONICPU
@@ -361,13 +363,11 @@ namespace ONICPU
         PORT_SYMBOLS[i] = new KAnimHashedString($"dot{i}");
     }
 
-    //private static AssetBundle UIAssetbundle = null;
-
     protected override void OnSpawn()
     {
       base.OnSpawn();
 
-      if (programValue == "" && CPUType == FCPUType.JavaScript)
+      if (string.IsNullOrEmpty(programValue) && CPUType == FCPUType.JavaScript)
         programValue = FCPUExecutorJavaScript.DefaultCode;
 
       controlPortOffsets = new CellOffset[2]
@@ -721,22 +721,22 @@ namespace ONICPU
             ScreenPrefabs.Instance.InfoDialogScreen.gameObject, 
             GameScreenManager.Instance.ssOverlayCanvas.gameObject, force_active: true
           );
-          screenInstance.SetHeader("Edit program for this CPU Unit")
+          screenInstance.SetHeader(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_TITLE"))
               .AddUI(FCPUEditorUI.ProgramEditorPanelPrefab, out fCPUEditorUI)
-              .AddOption("Copy", (screen) =>
+              .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_COPY"), (screen) =>
               {
                 fCPUEditorUI.Copy();
               })
-              .AddOption("Paste", (screen) =>
+              .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_PASTE"), (screen) =>
               {
                 fCPUEditorUI.Patse();
               })
-              .AddOption("Compile", (screen) =>
+              .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_COMPILE"), (screen) =>
               {
                 ProgramValue = fCPUEditorUI.GetProgram();
                 breakpointState = fCPUEditorUI.GetBreakpointStateStr();
               }, rightSide: true)
-              .AddOption("Close", (screen) =>
+              .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_CLOSE"), (screen) =>
               {
                 var program = fCPUEditorUI.GetProgram();
                 if (ProgramValue != program)
@@ -776,14 +776,21 @@ namespace ONICPU
           {
             executor.Stop();
           };
+          fCPUEditorUI.onShowFullLog += (log) =>
+          {
+            UIUtils.ShowMessageModal(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_LOG_TITLE"), log);
+          };
+          fCPUEditorUI.onShowFullStatus += (log) =>
+          {
+            UIUtils.ShowMessageModal(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_STATUS_TITLE"), log);
+          };
         }
         else
         {
-          Util.KInstantiateUI<InfoDialogScreen>(
-            ScreenPrefabs.Instance.InfoDialogScreen.gameObject, GameScreenManager.Instance.ssOverlayCanvas.gameObject, force_active: true)
-               .SetHeader("Edit program for this CPU Unit")
-               .AddPlainText("Failed to make editor UI, mod need update, Exception in console")
-               .AddDefaultOK();
+          UIUtils.ShowMessageModal(
+            Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_TITLE"), 
+            "Failed to make editor UI, mod need update, Exception in console"
+          );
         }
       }
     }

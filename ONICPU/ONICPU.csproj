@@ -132,6 +132,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="component\CheckboxFixed.cs" />
+    <Compile Include="digit\DigitConstant.cs" />
+    <Compile Include="digit\DigitConstantConfig.cs" />
     <Compile Include="digit\DigitSeg32Config.cs" />
     <Compile Include="digit\DigitSegBaseConfig.cs" />
     <Compile Include="FCPU4JSConfig.cs" />
@@ -139,6 +141,7 @@
     <Compile Include="FCPU8Config.cs" />
     <Compile Include="FCPUExecutorAssemblyCode.cs" />
     <Compile Include="FCPUExecutorJavaScript.cs" />
+    <Compile Include="screens\DigitConstantSideScreen.cs" />
     <Compile Include="screens\FCPUSideScreen.cs" />
     <Compile Include="screens\DigitCommonSensorSideScreen.cs" />
     <Compile Include="screens\DigitPressureSensorSideScreen.cs" />
@@ -173,6 +176,7 @@
     <Compile Include="sensor\DigitCritterCountSensorConfig.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="UIAnchorPosUtils.cs" />
+    <Compile Include="UIUtils.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="FCPU.cs" />
     <Compile Include="FCPU4Config.cs" />
@@ -182,6 +186,12 @@
     <Compile Include="STRINGS.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="anim\assets\dit_const\dit_const_anim.bytes">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="anim\assets\dit_const\dit_const_build.bytes">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="anim\assets\dit_seg_16bit\dit_seg_16bit_anim.bytes">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -224,6 +234,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="anim\assets\dit_const\dit_const.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="anim\assets\dit_seg_16bit\dit_seg_16bit.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

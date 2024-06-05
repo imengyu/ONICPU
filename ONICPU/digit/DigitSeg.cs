@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace ONICPU.digit
@@ -107,6 +108,12 @@ namespace ONICPU.digit
           {
             var maxCount = 10;
             var number1 = value;
+            if (number1 > int.MaxValue || number1 < int.MinValue)
+            {
+              for (short i = 0; i < maxCount; i++)
+                Update7Seg(kbac, i, MAX_SEG_VALUE);
+              return;
+            }
             var number = System.Math.Abs(number1);
             short index = 0;
             if (number1 == 0)

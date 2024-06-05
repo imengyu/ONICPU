@@ -92,5 +92,9 @@ namespace ONICPU
       }
     }
 
+    public static string GetLocalizeString(string key)
+    {
+      return Strings.Get(new StringKey(key));
+    }
   }
 }
