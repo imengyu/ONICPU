@@ -1,4 +1,5 @@
-﻿using STRINGS;
+﻿using ONICPU.ui;
+using STRINGS;
 using UnityEngine;
 
 namespace ONICPU.screens
@@ -7,7 +8,7 @@ namespace ONICPU.screens
   {
     public IDigitCommonSensor targetSensor;
 
-    public LocText currentValue;
+    public FLabel currentValue;
 
     public override bool IsValidForTarget(GameObject target)
     {
@@ -29,11 +30,11 @@ namespace ONICPU.screens
     }
     private void UpdateLabels()
     {
-      currentValue.text = string.Format(
+      currentValue.SetText(string.Format(
         UI.UISIDESCREENS.THRESHOLD_SWITCH_SIDESCREEN.CURRENT_VALUE, 
         targetSensor.ThresholdValueName,
         targetSensor.Format(targetSensor.CurrentValue, units: true)
-      );
+      ));
     }
     public override string GetTitle()
     {

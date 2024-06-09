@@ -1,9 +1,9 @@
 ﻿using System;
 using UnityEngine;
 
-namespace ONICPU.component
+namespace ONICPU.ui
 {
-  public class CheckboxFixed : MonoBehaviour
+  public class FCheckbox : MonoBehaviour
   {
     public KToggle Toggle;
     public KImage Checkmark;
@@ -13,23 +13,18 @@ namespace ONICPU.component
 
     private void Start()
     {
-      Toggle = GetComponent<KToggle>();
-      Checkmark = transform.Find("CheckMark").GetComponent<KImage>();
+      Toggle = transform.GetChild(0).GetComponent<KToggle>();
+      Checkmark = transform.GetChild(0).Find("CheckMark").GetComponent<KImage>();
       Checkmark.enabled = _Checked;
-      Label = transform.parent.Find("Label").GetComponent<LocText>();
-      if (!string.IsNullOrEmpty(LabelKey))
-      {
-        Label.key = LabelKey;
-        Label.ApplySettings();
-      }
-      else if (!string.IsNullOrEmpty(LabelText))
-        Label.text = LabelText;
+      Label = transform.Find("Label").GetComponent<LocText>();
       Toggle.onClick += Toggle_onClick;
+      UpdateText();
     }
 
     public event Action<bool> onCheckedChanged;
 
     private bool _Checked = false;
+
     public bool Checked
     {
       get { return _Checked; }
@@ -42,6 +37,17 @@ namespace ONICPU.component
           onCheckedChanged?.Invoke(_Checked);
         }
       }
+    }
+
+    public void UpdateText()
+    {
+      if (!string.IsNullOrEmpty(LabelKey))
+      {
+        Label.key = LabelKey;
+        Label.ApplySettings();
+      }
+      else if (!string.IsNullOrEmpty(LabelText))
+        Label.text = LabelText;
     }
 
     private void Toggle_onClick()

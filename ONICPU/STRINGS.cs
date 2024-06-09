@@ -6,29 +6,64 @@
     {
       public class PREFABS
       {
-        public class FCPU4
+        public static LocString FCPUDESC = "Allow you to use assembly code for more customized control of logical signals.";
+        public static LocString FCPUJSDESC = "Allow you to use JavaScript for more customized control of logical signals.";
+
+        public class FCPU2JS
         {
-          public static LocString NAME = "Fast CPU 4pin";
-          public static LocString DESC = "Allow you to use assembly code for more customized control of logical signals.";
-          public static LocString EFFECT = "Using assembly code to process and output control signals.";
-        }
-        public class FCPU8
-        {
-          public static LocString NAME = "Fast CPU 8pin";
-          public static LocString DESC = "Allow you to use assembly code for more customized control of logical signals.";
-          public static LocString EFFECT = "Using assembly code to process and output control signals.";
+          public static LocString NAME = "Easy JavaScript CPU (2pin)";
+          public static LocString DESC = FCPUJSDESC;
+          public static LocString EFFECT = "Using JavaScript to process and output control signals.";
         }
         public class FCPU4JS
         {
-          public static LocString NAME = "Fast CPU 4pin (JavaScript)";
-          public static LocString DESC = "Allow you to use JavaScript for more customized control of logical signals.";
+          public static LocString NAME = "Easy JavaScript CPU (4pin)";
+          public static LocString DESC = FCPUJSDESC;
           public static LocString EFFECT = "Using JavaScript to process and output control signals.";
         }
         public class FCPU8JS
         {
-          public static LocString NAME = "Fast CPU 8pin (JavaScript)";
-          public static LocString DESC = "Allow you to use JavaScript for more customized control of logical signals.";
+          public static LocString NAME = "Easy JavaScript CPU (8pin)";
+          public static LocString DESC = FCPUJSDESC;
           public static LocString EFFECT = "Using JavaScript to process and output control signals.";
+        }
+
+        public class FCPU2
+        {
+          public static LocString NAME = "Advanced CPU (2pin)";
+          public static LocString DESC = FCPUDESC;
+          public static LocString EFFECT = "Using assembly code to process and output control signals.";
+        }
+        public class FCPU4
+        {
+          public static LocString NAME = "Advanced CPU (4pin)";
+          public static LocString DESC = FCPUDESC;
+          public static LocString EFFECT = "Using assembly code to process and output control signals.";
+        }
+        public class FCPU8
+        {
+          public static LocString NAME = "Advanced CPU (8pin)";
+          public static LocString DESC = FCPUDESC;
+          public static LocString EFFECT = "Using assembly code to process and output control signals.";
+        }
+
+        public class FCPU2PSASM
+        {
+          public static LocString NAME = "Advanced PSASM CPU (2pin)";
+          public static LocString DESC = FCPUDESC;
+          public static LocString EFFECT = "Using assembly code to process and output control signals.";
+        }
+        public class FCPU4PSASM
+        {
+          public static LocString NAME = "Advanced PSASM CPU (4pin)";
+          public static LocString DESC = FCPUDESC;
+          public static LocString EFFECT = "Using assembly code to process and output control signals.";
+        }
+        public class FCPU8PSASM
+        {
+          public static LocString NAME = "Advanced PSASM CPU (8pin)";
+          public static LocString DESC = FCPUDESC;
+          public static LocString EFFECT = "Using assembly code to process and output control signals.";
         }
 
         public class DIGITSEG8
@@ -184,6 +219,10 @@
 
           public static LocString NO_LOGS = "No log output";
 
+          public static LocString TITLE_EDITOR = "Program editor";
+          public static LocString TITLE_CONTROL_SPEED = "Speed control";
+          public static LocString TITLE_LANG = "CPU Language";
+
         }
       }
       public class USERMENUACTIONS
@@ -192,6 +231,25 @@
         {
           public static LocString NAME = "Write program";
           public static LocString TOOLTIP = "Write program for this CPU Unit";
+          public static LocString MANUAL = "Show manual";
+          public static LocString MANUAL_TOOLTIP = "Display CPU programming manual";
+        }
+      }
+    }
+
+    public class RESEARCH
+    { 
+      public class TECHS
+      {
+        public class FASTCPU
+        {
+          public static LocString NAME = global::STRINGS.UI.FormatAsLink("Fast CPU", "FASTCPU");
+          public static LocString DESC = "Allow you to use assembly code for more customized control of logical signals.";
+        }
+        public class DIGITSENSORS
+        {
+          public static LocString NAME = global::STRINGS.UI.FormatAsLink("Digit Sensors", "DIGITSENSORS");
+          public static LocString DESC = "Allow you to use digit sensors and read digit signals.";
         }
       }
     }

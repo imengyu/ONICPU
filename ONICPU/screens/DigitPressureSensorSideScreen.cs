@@ -1,4 +1,4 @@
-﻿using ONICPU.component;
+﻿using ONICPU.ui;
 using UnityEngine;
 using static ONICPU.sensor.DigitPressureSensor;
 
@@ -13,14 +13,14 @@ namespace ONICPU.screens
   {
     public IDigitPressureSensor targetSensor;
 
-    public CheckboxFixed checkUnitug;
-    public CheckboxFixed checkUnitmg;
-    public CheckboxFixed checkUnitg;
-    public CheckboxFixed checkUnitkg;
-    public CheckboxFixed checkUnitt;
-    public CheckboxFixed checkUnitpounds;
-    public CheckboxFixed checkUnitgr;
-    public CheckboxFixed checkUnitdr;
+    public FCheckbox checkUnitug;
+    public FCheckbox checkUnitmg;
+    public FCheckbox checkUnitg;
+    public FCheckbox checkUnitkg;
+    public FCheckbox checkUnitt;
+    public FCheckbox checkUnitpounds;
+    public FCheckbox checkUnitgr;
+    public FCheckbox checkUnitdr;
 
     protected override void OnSpawn()
     {

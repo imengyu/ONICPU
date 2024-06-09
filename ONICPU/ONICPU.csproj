@@ -64,6 +64,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
@@ -131,7 +132,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="component\CheckboxFixed.cs" />
+    <Compile Include="FCPU2PSASMConfig.cs" />
+    <Compile Include="FCPU2Config.cs" />
+    <Compile Include="FCPU2JSConfig.cs" />
+    <Compile Include="FCPU4PSASMConfig.cs" />
+    <Compile Include="FCPU8PSASMConfig.cs" />
+    <Compile Include="ui\FCheckbox.cs" />
     <Compile Include="digit\DigitConstant.cs" />
     <Compile Include="digit\DigitConstantConfig.cs" />
     <Compile Include="digit\DigitSeg32Config.cs" />
@@ -175,8 +181,11 @@
     <Compile Include="sensor\DigitCritterCountSensor.cs" />
     <Compile Include="sensor\DigitCritterCountSensorConfig.cs" />
     <Compile Include="Test.cs" />
-    <Compile Include="UIAnchorPosUtils.cs" />
-    <Compile Include="UIUtils.cs" />
+    <Compile Include="ui\UIAnchorPosUtils.cs" />
+    <Compile Include="ui\FButton.cs" />
+    <Compile Include="ui\FLabel.cs" />
+    <Compile Include="ui\FLayoutOptions.cs" />
+    <Compile Include="ui\UIUtils.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="FCPU.cs" />
     <Compile Include="FCPU4Config.cs" />
@@ -208,6 +217,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="anim\assets\dit_seg_8bit\dit_seg_8bit_build.bytes">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="anim\assets\fcpu2\fcpu2_anim.bytes">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="anim\assets\fcpu2\fcpu2_build.bytes">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="anim\assets\fcpu8\fcpu8_anim.bytes">
@@ -244,6 +259,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="anim\assets\dit_seg_8bit\dit_seg_8bit.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="anim\assets\fcpu2\fcpu2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="anim\assets\fcpu8\fcpu8.png">

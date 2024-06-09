@@ -1,6 +1,6 @@
 ﻿using ONICPU.digit;
+using ONICPU.ui;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace ONICPU.screens
 {
@@ -10,9 +10,8 @@ namespace ONICPU.screens
 
     public DigitConstant target;
 
-    public KButton valueApplyButton = null;
-    public KButton[] valueButtons = new KButton[MAX_BIT];
-    public LocText[] valueButtonTexs = new LocText[MAX_BIT];
+    public FButton valueApplyButton = null;
+    public FButton[] valueButtons = new FButton[MAX_BIT];
     public KInputTextField valueInput;
 
     private static Color TextDeactiveColor = new Color(0.7f, 0.3f, 0.3f);
@@ -36,8 +35,8 @@ namespace ONICPU.screens
       for (var i = 0; i < MAX_BIT; i++)
       {
         var on = LogicCircuitNetwork.IsBitActive(i, target.Value);
-        valueButtonTexs[i].text = on ? "1" : "0";
-        valueButtonTexs[i].color = on ? TextActiveColor : TextDeactiveColor;
+        valueButtons[i].label.text = on ? "1" : "0";
+        valueButtons[i].label.color = on ? TextActiveColor : TextDeactiveColor;
       }
     }
     private void UpdateOneBit(int bit)
@@ -74,10 +73,10 @@ namespace ONICPU.screens
       for (int i = 0; i < MAX_BIT; i++)
       {
         var index = i;
-        valueButtons[index].onClick += () => UpdateOneBit(index);
+        valueButtons[index].OnClick += () => UpdateOneBit(index);
       }
 
-      valueApplyButton.onClick += () => UpdateValue();
+      valueApplyButton.OnClick += () => UpdateValue();
 
       isInitEvents = true;
     }

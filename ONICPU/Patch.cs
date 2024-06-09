@@ -1,16 +1,12 @@
 ﻿using HarmonyLib;
-using KMod;
-using ONICPU.component;
 using ONICPU.digit;
 using ONICPU.screens;
-using ONICPU.sensor;
-using STRINGS;
+using ONICPU.ui;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using static DetailsScreen;
-using static STRINGS.UI.FRONTEND;
 
 namespace ONICPU
 {
@@ -20,10 +16,15 @@ namespace ONICPU
     private const string SubcategoryID = "fcpu";
     private static void Prefix()
     {
+      ModUtil.AddBuildingToPlanScreen("Automation", FCPU2Config.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", FCPU4Config.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", FCPU8Config.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Automation", FCPU2JSConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", FCPU4JSConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", FCPU8JSConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Automation", FCPU2PSASMConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Automation", FCPU4PSASMConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Automation", FCPU8PSASMConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitSegBaseConfig.ID + 8, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitSegBaseConfig.ID + 16, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitSegBaseConfig.ID + 32, SubcategoryID);
@@ -48,25 +49,70 @@ namespace ONICPU
   {
     public static void Postfix()
     {
-      Utils.AddBuildingToTechnology("LogicCircuits", FCPU4Config.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", FCPU8Config.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", FCPU4JSConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", FCPU8JSConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitSegBaseConfig.ID + 8);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitSegBaseConfig.ID + 16);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitSegBaseConfig.ID + 32);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitTemperatureSensorConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitCritterCountSensorConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitDuplicantSensorConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitLightSensorConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitMassSensorConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitPressureSensorGasConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitPressureSensorLiquidConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitRadiationSensorConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitTimeOfDaySensorConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitWattageSensorConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitBatteryConfig.ID);
-      Utils.AddBuildingToTechnology("LogicCircuits", DigitConstantConfig.ID);
+      if (DlcManager.IsExpansion1Active())
+      {
+        Utils.AddTechnology("DupeTrafficControl", "DigitSensors", new ResourceTreeNode()
+        {
+          nodeX = 1950.0f,
+          nodeY = -7554.0f,
+          width = 250.0f,
+          height = 72.0f,
+        }, "_Computers");
+        Utils.AddTechnology("DigitSensors", "FastCPU", new ResourceTreeNode()
+        {
+          nodeX = 2305.0f,
+          nodeY = -7554.0f,
+          width = 250.0f,
+          height = 72.0f,
+        }, "_Computers");
+        Utils.AddTechnologyLine("DupeTrafficControl", "DigitSensors");
+        Utils.AddTechnologyLine("DigitSensors", "FastCPU");
+      }
+      else
+      {
+        Utils.AddTechnology("DupeTrafficControl", "DigitSensors", new ResourceTreeNode()
+        {
+          nodeX = 1950.0f,
+          nodeY = -6834.80f,
+          width = 250.0f,
+          height = 72.0f,
+        }, "_Computers");
+        Utils.AddTechnology("DigitSensors", "FastCPU", new ResourceTreeNode()
+        {
+          nodeX = 6834.80f,
+          nodeY = -6834.80f,
+          width = 250.0f,
+          height = 72.0f,
+        }, "_Computers");
+        Utils.AddTechnologyLine("DupeTrafficControl", "DigitSensors");
+        Utils.AddTechnologyLine("DigitSensors", "FastCPU");
+      }
+
+
+      Utils.AddBuildingToTechnology("FastCPU", FCPU2Config.ID);
+      Utils.AddBuildingToTechnology("FastCPU", FCPU4Config.ID);
+      Utils.AddBuildingToTechnology("FastCPU", FCPU8Config.ID);
+      Utils.AddBuildingToTechnology("FastCPU", FCPU2JSConfig.ID);
+      Utils.AddBuildingToTechnology("FastCPU", FCPU4JSConfig.ID);
+      Utils.AddBuildingToTechnology("FastCPU", FCPU8JSConfig.ID);
+      Utils.AddBuildingToTechnology("FastCPU", FCPU2PSASMConfig.ID);
+      Utils.AddBuildingToTechnology("FastCPU", FCPU4PSASMConfig.ID);
+      Utils.AddBuildingToTechnology("FastCPU", FCPU8PSASMConfig.ID);
+      Utils.AddBuildingToTechnology("FastCPU", DigitConstantConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitSegBaseConfig.ID + 8);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitSegBaseConfig.ID + 16);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitSegBaseConfig.ID + 32);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitTemperatureSensorConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitCritterCountSensorConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitDuplicantSensorConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitLightSensorConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitMassSensorConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitPressureSensorGasConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitPressureSensorLiquidConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitRadiationSensorConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitTimeOfDaySensorConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitWattageSensorConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitBatteryConfig.ID);
     }
   }
 
@@ -90,18 +136,7 @@ namespace ONICPU
 
       UIUtils.GetKleiInternalPrefabs();
 
-      CritterSensorSideScreen critterSensorSideScreen = null;
       LogicBitSelectorSideScreen logicBitSelectorSideScreen = null;
-      ArtableSelectionSideScreen artableSelectionSideScreen = null;
-      foreach (var sideScreen in sideScreens)
-      {
-        var comp = sideScreen.screenPrefab.GetComponent<CritterSensorSideScreen>();
-        if (comp != null)
-        {
-          critterSensorSideScreen = comp;
-          break;
-        }
-      }
       foreach (var sideScreen in sideScreens)
       {
         var comp = sideScreen.screenPrefab.GetComponent<LogicBitSelectorSideScreen>();
@@ -111,230 +146,7 @@ namespace ONICPU
           break;
         }
       }
-      foreach (var sideScreen in sideScreens)
-      {
-        var comp = sideScreen.screenPrefab.GetComponent<ArtableSelectionSideScreen>();
-        if (comp != null)
-        {
-          artableSelectionSideScreen = comp;
-          break;
-        }
-      }
-      //Add custom screens 
-      if (critterSensorSideScreen != null)
-      {
-        //DigitCritterSensorSideScreen
-        //==================================
 
-        var digitCritterSensorSideScreen = Object.Instantiate(critterSensorSideScreen.gameObject);
-        digitCritterSensorSideScreen.name = "DigitCritterSensorSideScreen";
-
-        var oldScreen = digitCritterSensorSideScreen.GetComponent<CritterSensorSideScreen>();
-        var newScreen = digitCritterSensorSideScreen.AddComponent<DigitCritterSensorSideScreen>();
-        newScreen.countCrittersToggle = oldScreen.countCrittersToggle.gameObject.AddComponent<CheckboxFixed>();
-        newScreen.countEggsToggle = oldScreen.countEggsToggle.gameObject.AddComponent<CheckboxFixed>();
-        var titleKeyField = typeof(SideScreenContent).GetField("titleKey", BindingFlags.Instance | BindingFlags.NonPublic);
-        titleKeyField.SetValue(newScreen, titleKeyField.GetValue(oldScreen));
-        Object.Destroy(oldScreen);
-
-        sideScreens.Add(new SideScreenRef()
-        {
-          name = digitCritterSensorSideScreen.name,
-          screenPrefab = newScreen,
-          offset = Vector2.zero,
-        });
-
-        //DigitPressureSensorSideScreen
-        //==================================
-
-        var digitPressureSensorSideScreenObject = Object.Instantiate(critterSensorSideScreen.gameObject);
-        var digitPressureSensorSideScreen = digitPressureSensorSideScreenObject.AddComponent<DigitPressureSensorSideScreen>();
-        digitPressureSensorSideScreenObject.name = "DigitPressureSensorSideScreen";
-
-        var content = digitPressureSensorSideScreenObject.transform.Find("Contents") as RectTransform;
-        var CheckboxPrefab = content.transform.Find("CheckboxGroup");
-        CheckboxPrefab.transform.GetChild(0).gameObject.AddComponent<CheckboxFixed>();
-        oldScreen = digitPressureSensorSideScreenObject.GetComponent<CritterSensorSideScreen>();
-        Object.Destroy(oldScreen);
-
-        digitPressureSensorSideScreen.checkUnitug = Object.Instantiate(CheckboxPrefab, content).transform.GetChild(0).gameObject.GetComponent<CheckboxFixed>();
-        digitPressureSensorSideScreen.checkUnitmg = Object.Instantiate(CheckboxPrefab, content).transform.GetChild(0).gameObject.GetComponent<CheckboxFixed>();
-        digitPressureSensorSideScreen.checkUnitg = Object.Instantiate(CheckboxPrefab, content).transform.GetChild(0).gameObject.GetComponent<CheckboxFixed>();
-        digitPressureSensorSideScreen.checkUnitkg = Object.Instantiate(CheckboxPrefab, content).transform.GetChild(0).gameObject.GetComponent<CheckboxFixed>();
-        digitPressureSensorSideScreen.checkUnitt = Object.Instantiate(CheckboxPrefab, content).transform.GetChild(0).gameObject.GetComponent<CheckboxFixed>();
-        digitPressureSensorSideScreen.checkUnitpounds = Object.Instantiate(CheckboxPrefab, content).transform.GetChild(0).gameObject.GetComponent<CheckboxFixed>();
-        digitPressureSensorSideScreen.checkUnitdr = Object.Instantiate(CheckboxPrefab, content).transform.GetChild(0).gameObject.GetComponent<CheckboxFixed>();
-        digitPressureSensorSideScreen.checkUnitgr = Object.Instantiate(CheckboxPrefab, content).transform.GetChild(0).gameObject.GetComponent<CheckboxFixed>();
-        digitPressureSensorSideScreen.checkUnitgr.LabelText = UI.UNITSUFFIXES.MASS.GRAIN;
-        digitPressureSensorSideScreen.checkUnitdr.LabelText = UI.UNITSUFFIXES.MASS.DRACHMA;
-        digitPressureSensorSideScreen.checkUnitpounds.LabelText = UI.UNITSUFFIXES.MASS.POUND;
-        digitPressureSensorSideScreen.checkUnitug.LabelText = UI.UNITSUFFIXES.MASS.MICROGRAM;
-        digitPressureSensorSideScreen.checkUnitmg.LabelText = UI.UNITSUFFIXES.MASS.MILLIGRAM;
-        digitPressureSensorSideScreen.checkUnitg.LabelText = UI.UNITSUFFIXES.MASS.GRAM;
-        digitPressureSensorSideScreen.checkUnitkg.LabelText = UI.UNITSUFFIXES.MASS.KILOGRAM;
-        digitPressureSensorSideScreen.checkUnitt.LabelText = UI.UNITSUFFIXES.MASS.TONNE;
-
-        for (int i = content.transform.childCount - 1; i >= 0; i--)
-        {
-          var item = content.transform.GetChild(i).gameObject;
-          if (item.name == "CheckboxGroup")
-            item.SetActive(false);
-        }
-
-        sideScreens.Add(new SideScreenRef()
-        {
-          name = digitPressureSensorSideScreenObject.name,
-          screenPrefab = digitPressureSensorSideScreen,
-          offset = Vector2.zero,
-        });
-
-        //DigitCommonSensorSideScreen
-        //==================================
-
-        var digitCommonSensorSideScreenObject = Object.Instantiate(critterSensorSideScreen.gameObject);
-        var digitCommonSensorSideScreen = digitCommonSensorSideScreenObject.AddComponent<DigitCommonSensorSideScreen>();
-        content = digitCommonSensorSideScreenObject.transform.Find("Contents") as RectTransform;
-        digitCommonSensorSideScreenObject.name = "DigitCommonSensorSideScreen";
-
-        var LabelPrefab = digitCommonSensorSideScreenObject.transform.Find("Contents/CheckboxGroup/Label");
-        oldScreen = digitCommonSensorSideScreenObject.GetComponent<CritterSensorSideScreen>();
-        Object.Destroy(oldScreen);
-
-        digitCommonSensorSideScreen.currentValue = Object.Instantiate(LabelPrefab, content).GetComponent<LocText>();
-        digitCommonSensorSideScreen.currentValue.alignment = TMPro.TextAlignmentOptions.Center;
-        digitCommonSensorSideScreen.currentValue.name = "CurrentValueLabel";
-
-        for(int i = content.transform.childCount - 1; i >= 0; i--)
-        {
-          var item = content.transform.GetChild(i).gameObject;
-          if (item.name == "CheckboxGroup")
-            item.SetActive(false);
-        }
-
-        sideScreens.Add(new SideScreenRef()
-        {
-          name = digitCommonSensorSideScreenObject.name,
-          screenPrefab = digitCommonSensorSideScreen,
-          offset = Vector2.zero,
-        });
-
-
-        if (artableSelectionSideScreen != null)
-        {
-          //FCPUSideScreen
-          //==================================
-
-          var FCPUSideScreenObject = Object.Instantiate(critterSensorSideScreen.gameObject);
-          var FCPUSideScreen = FCPUSideScreenObject.AddComponent<FCPUSideScreen>();
-          content = FCPUSideScreenObject.transform.Find("Contents") as RectTransform;
-          FCPUSideScreenObject.name = "FCPUSideScreen";
-
-          oldScreen = FCPUSideScreen.GetComponent<CritterSensorSideScreen>();
-          Object.Destroy(oldScreen);
-
-          FCPUSideScreen.editButton = Object.Instantiate(UIUtils.KButtonPrefab.gameObject, content).GetComponent<KButton>();
-          FCPUSideScreen.editButton.name = "EditButton";
-          FCPUSideScreen.editButton.transform.Find("Label").GetComponent<LocText>().key = "STRINGS.UI.USERMENUACTIONS.FCPUMENU.NAME";
-          FCPUSideScreen.editButton.GetComponent<ToolTip>().FixedStringKey = "STRINGS.UI.USERMENUACTIONS.FCPUMENU.TOOLTIP";
-          FCPUSideScreen.editButton.GetComponent<LayoutElement>().minWidth = 260;
-
-          for (int i = content.transform.childCount - 1; i >= 0; i--)
-          {
-            var item = content.transform.GetChild(i).gameObject;
-            if (item.name != "EditButton" && item.name != "BodyBG")
-              item.SetActive(false);
-          }
-
-          sideScreens.Add(new SideScreenRef()
-          {
-            name = FCPUSideScreenObject.name,
-            screenPrefab = FCPUSideScreen,
-            offset = Vector2.zero,
-          });
-
-          //DigitConstantSideScreen
-          //==================================
-
-          var DigitConstantSideScreenObject = Object.Instantiate(critterSensorSideScreen.gameObject);
-          var DigitConstantSideScreen = DigitConstantSideScreenObject.AddComponent<DigitConstantSideScreen>();
-          content = DigitConstantSideScreenObject.transform.Find("Contents") as RectTransform;
-          DigitConstantSideScreenObject.name = "DigitConstantSideScreen";
-
-          oldScreen = DigitConstantSideScreen.GetComponent<CritterSensorSideScreen>();
-          Object.Destroy(oldScreen);
-
-          for (int i = content.transform.childCount - 1; i >= 0; i--)
-          {
-            var item = content.transform.GetChild(i).gameObject;
-            if (item.name != "BodyBG")
-              item.SetActive(false);
-          }
-
-          const int ROW_SIZE = 8;
-
-          for (int i = 0; i < DigitConstantSideScreen.MAX_BIT / ROW_SIZE; i++)
-          {
-            var group = new GameObject();
-            var groupRectTransform = group.AddComponent<RectTransform>();
-            var groupLayoutElement = group.AddComponent<LayoutElement>();
-            var groupHorizontalLayoutGroup = group.AddComponent<HorizontalLayoutGroup>();
-            groupLayoutElement.minWidth = 260;
-            groupLayoutElement.minHeight = 23;
-            groupRectTransform.SetParent(content);
-
-            var lineText = UIUtils.AddTextLine(
-              $"{i * ROW_SIZE}-{i * ROW_SIZE + 7}",
-              "Tip", 30, 23, 0, 0, groupRectTransform
-            );
-            var lineTextLayoutElement = lineText.GetComponent<LayoutElement>();
-            lineTextLayoutElement.minWidth = 30;
-            lineTextLayoutElement.preferredWidth = 30;
-            lineText.color = Color.black;
-
-            for (int j = 0; j < ROW_SIZE; j++)
-            {
-              var index = i * ROW_SIZE + j;
-              var btn = Object.Instantiate(UIUtils.KButtonPrefab.gameObject, groupRectTransform).GetComponent<KButton>();
-              var btnText = btn.transform.GetChild(0).GetComponent<LocText>();
-              var btnRectTransform = btn.GetComponent<RectTransform>();
-              var btnLayoutElement = btn.GetComponent<LayoutElement>();
-              DigitConstantSideScreen.valueButtons[index] = btn;
-              DigitConstantSideScreen.valueButtonTexs[index] = btnText;
-              Object.Destroy(btn.GetComponent<ToolTip>());
-              btnRectTransform.sizeDelta = new Vector2(23, 23);
-              btnLayoutElement.minWidth = 23;
-              btnLayoutElement.minHeight = 23;
-              btnText.text = "";
-            }
-          }
-
-          var text = UIUtils.AddTextLine(
-            Utils.GetLocalizeString("STRINGS.BUILDINGS.PREFABS.DIGITCONST.LOGIC_PORT"),
-            "Tip", 260, 15, 0, 0, content
-          );
-          text.color = Color.black;
-
-          var input = Object.Instantiate(UIUtils.KInputFieldPrefab.gameObject, content).GetComponent<KInputField>();
-          DigitConstantSideScreen.valueInput = input.field;
-          DigitConstantSideScreen.valueInput.gameObject.AddComponent<LayoutElement>().minWidth = 260;
-
-          DigitConstantSideScreen.valueApplyButton = UIUtils.AddButtonLine(
-            "",
-            "STRINGS.UI.UISIDESCREENS.DIGITCONST.APPLY",
-            "STRINGS.UI.UISIDESCREENS.DIGITCONST.APPLY_INPUT", 0, 0, content,
-            null
-          );
-          UIUtils.AddSpaceLine(260, 10, content);
-
-          sideScreens.Add(new SideScreenRef()
-          {
-            name = DigitConstantSideScreenObject.name,
-            screenPrefab = DigitConstantSideScreen,
-            offset = Vector2.zero,
-          });
-
-        }
-      }
       //Fix LogicBitSelectorSideScreen too high
       if (logicBitSelectorSideScreen)
       {
@@ -345,6 +157,138 @@ namespace ONICPU
         var layout2 = logicBitSelectorSideScreen.transform.Find("Contents/RowContainer/Rows").GetComponent<VerticalLayoutGroup>();
         layout2.spacing = 0;
       }
+
+      //Add custom screens 
+
+      //DigitCritterSensorSideScreen
+      //==================================
+
+      UIUtils.AddSideScreen<DigitCritterSensorSideScreen>((parent, self) =>
+      {
+        self.countCrittersToggle = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.BUILDINGS.PREFABS.LOGICCRITTERCOUNTSENSOR.COUNT_CRITTER_LABEL");
+        self.countEggsToggle = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.BUILDINGS.PREFABS.LOGICCRITTERCOUNTSENSOR.COUNT_EGG_LABEL");
+      }, "STRINGS.BUILDINGS.PREFABS.DIGITCRITTERCOUNTSENSOR.NAME");
+
+      //DigitPressureSensorSideScreen
+      //==================================
+
+      UIUtils.AddSideScreen<DigitPressureSensorSideScreen>((parent, self) =>
+      {
+        self.checkUnitug = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UNITSUFFIXES.MASS.MICROGRAM");
+        self.checkUnitmg = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UNITSUFFIXES.MASS.MILLIGRAM");
+        self.checkUnitg = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UNITSUFFIXES.MASS.GRAM");
+        self.checkUnitkg = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UNITSUFFIXES.MASS.KILOGRAM");
+        self.checkUnitt = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UNITSUFFIXES.MASS.TONNE");
+        self.checkUnitpounds = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UNITSUFFIXES.MASS.MICROGRAM");
+        self.checkUnitdr = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UNITSUFFIXES.MASS.DRACHMA");
+        self.checkUnitgr = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UNITSUFFIXES.MASS.GRAIN");
+      }, "STRINGS.BUILDINGS.PREFABS.DIGITPRESSURESENSORGAS.NAME");
+
+      //DigitCommonSensorSideScreen
+      //==================================
+
+      UIUtils.AddSideScreen<DigitCommonSensorSideScreen>((parent, self) =>
+      {
+        self.currentValue = UIUtils.AddLabel(
+          parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 100),
+          LabelAlignment: TMPro.TextAlignmentOptions.Center
+        );
+      });
+
+      //FCPUSideScreen
+      //==================================
+
+      UIUtils.AddSideScreen<FCPUSideScreen>((parent, self) =>
+      {
+        UIUtils.AddLabel(
+          parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30),
+          "STRINGS.UI.UISIDESCREENS.FCPU.TITLE_EDITOR",
+          LabelColor: Color.black, LabelAlignment: TMPro.TextAlignmentOptions.Center
+        );
+
+        self.editButton = UIUtils.AddButton(parent,
+          new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30),
+          LabelKey: "STRINGS.UI.USERMENUACTIONS.FCPUMENU.NAME", 
+          TooltipKey: "STRINGS.UI.USERMENUACTIONS.FCPUMENU.TOOLTIP"
+        );
+        self.manualButton = UIUtils.AddButton(parent,
+          new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30),
+          LabelKey: "STRINGS.UI.USERMENUACTIONS.FCPUMENU.MANUAL",
+          TooltipKey: "STRINGS.UI.USERMENUACTIONS.FCPUMENU.MANUAL_TOOLTIP"
+        );
+
+        UIUtils.AddLabel(
+          parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30),
+          "STRINGS.UI.UISIDESCREENS.FCPU.TITLE_CONTROL_SPEED",
+          LabelColor: Color.black, LabelAlignment: TMPro.TextAlignmentOptions.Center
+        );
+
+        self.speedControl = UIUtils.AddDropdown(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30), (dropdown) =>
+        {
+          for (var i = 0; i < FCPU.CPUSpeedArray.Count; i++)
+          {
+            var sp = FCPU.CPUSpeedArray[i];
+            dropdown.options.Add(new Dropdown.OptionData() { text = $"{sp}x({sp * 5}hz)" });
+          }
+        });
+
+        UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
+      });
+
+      //DigitConstantSideScreen
+      //==================================
+
+      UIUtils.AddSideScreen<DigitConstantSideScreen>((content, DigitConstantSideScreen) =>
+      {
+        const int ROW_SIZE = 8;
+
+        UIUtils.AddVerticalLayout(content, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 300), (parent, verticalLayoutGroup) =>
+        {
+          verticalLayoutGroup.childControlHeight = false;
+          verticalLayoutGroup.childForceExpandHeight = false;
+
+          for (int i = 0; i < DigitConstantSideScreen.MAX_BIT / ROW_SIZE; i++)
+          {
+            UIUtils.AddHorzontalLayout(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30), (groupRectTransform, a) =>
+            {
+              a.childForceExpandWidth = false;
+              a.childControlWidth = false;
+
+              var lineText = UIUtils.AddTextLine(
+                $"{i * ROW_SIZE}-{i * ROW_SIZE + 7}",
+                "Tip", 50, 30, 0, 0, groupRectTransform
+              );
+              var lineTextLayoutElement = lineText.GetComponent<LayoutElement>();
+              lineTextLayoutElement.minWidth = 30;
+              lineTextLayoutElement.preferredWidth = 30;
+              lineText.color = Color.black;
+              lineText.alignment = TMPro.TextAlignmentOptions.Center;
+
+              for (int j = 0; j < ROW_SIZE; j++)
+              {
+                var index = i * ROW_SIZE + j;
+                DigitConstantSideScreen.valueButtons[index] = UIUtils.AddButton(
+                  groupRectTransform, new FLayoutOptions(23, 23),
+                  LabelText: "0"
+                );
+              }
+            });
+          }
+
+          UIUtils.AddLabel(
+            parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30), 
+            "STRINGS.BUILDINGS.PREFABS.DIGITCONST.LOGIC_PORT", 
+            LabelColor: Color.black, LabelAlignment: TMPro.TextAlignmentOptions.Center
+          );
+          
+          DigitConstantSideScreen.valueInput = UIUtils.AddInputField(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30)).field;
+          DigitConstantSideScreen.valueApplyButton = UIUtils.AddButton(
+            parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30), 
+            LabelKey: "STRINGS.UI.UISIDESCREENS.DIGITCONST.APPLY", TooltipKey: "STRINGS.UI.UISIDESCREENS.DIGITCONST.APPLY_INPUT"
+          );
+          UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
+        }); 
+      });
     }
   }
 

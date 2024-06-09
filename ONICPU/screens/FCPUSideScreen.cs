@@ -1,5 +1,6 @@
-﻿using STRINGS;
+﻿using ONICPU.ui;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ONICPU.screens
 {
@@ -7,16 +8,29 @@ namespace ONICPU.screens
   {
     public FCPU target;
 
-    public KButton editButton;
+    public Dropdown speedControl;
+    public FButton editButton;
+    public FButton manualButton;
 
     protected override void OnSpawn()
     {
       base.OnSpawn();
 
-      editButton.onBtnClick += EditButton_onBtnClick;
+      manualButton.OnClick += ManualButton_onBtnClick;
+      editButton.OnClick += EditButton_onBtnClick;
+      speedControl.onValueChanged.AddListener((v) =>
+      {
+        if (target != null)
+          target.CPUSpeed = v;
+      });
     }
 
-    private void EditButton_onBtnClick(KKeyCode obj)
+    private void ManualButton_onBtnClick()
+    {
+      if (target != null)
+        target.OnShowCPUManual();
+    }
+    private void EditButton_onBtnClick()
     {
       if (target != null)
         target.OnShowProgramEditor();
@@ -30,11 +44,17 @@ namespace ONICPU.screens
     {
       base.SetTarget(target);
       this.target = target.GetComponent<FCPU>();
+      LoadValues();
     }
 
     public override string GetTitle()
     {
       return STRINGS.UI.UISIDESCREENS.FCPU.SIDESCREEN_TITLE;
+    }
+
+    private void LoadValues()
+    {
+      speedControl.value = target.CPUSpeed;
     }
   }
 }

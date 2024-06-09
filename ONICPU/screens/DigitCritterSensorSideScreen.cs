@@ -1,4 +1,4 @@
-﻿using ONICPU.component;
+﻿using ONICPU.ui;
 using UnityEngine;
 
 namespace ONICPU.screens
@@ -7,8 +7,8 @@ namespace ONICPU.screens
   {
     public DigitCritterCountSensor targetSensor;
 
-    public CheckboxFixed countCrittersToggle;
-    public CheckboxFixed countEggsToggle;
+    public FCheckbox countCrittersToggle;
+    public FCheckbox countEggsToggle;
 
     protected override void OnSpawn()
     {

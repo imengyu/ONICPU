@@ -13,8 +13,17 @@ msgstr ""
 "Application: Oxygen Not IncludedPOT Version: 2.0\n"
 "X-Generator: Poedit 3.0\n"
 
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2.NAME"
+msgstr "高级汇编CPU 2IO"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2.DESC"
+msgstr "允许您使用汇编代码更自定义地控制逻辑信号。"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2.EFFECT"
+msgstr "使用汇编代码处理并输出控制信号。"
+
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4.NAME"
-msgstr "简易CPU 4IO"
+msgstr "高级汇编CPU 4IO"
 
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4.DESC"
 msgstr "允许您使用汇编代码更自定义地控制逻辑信号。"
@@ -23,7 +32,7 @@ msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4.EFFECT"
 msgstr "使用汇编代码处理并输出控制信号。"
 
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU8.NAME"
-msgstr "简易CPU 8IO"
+msgstr "高级汇编CPU 8IO"
 
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU8.DESC"
 msgstr "允许您使用汇编代码更自定义地控制逻辑信号。"
@@ -31,8 +40,44 @@ msgstr "允许您使用汇编代码更自定义地控制逻辑信号。"
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU8.EFFECT"
 msgstr "使用汇编代码处理并输出控制信号。"
 
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2PSASM.NAME"
+msgstr "高级PSASM汇编CPU 2IO"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2PSASM.DESC"
+msgstr "允许您使用汇编代码更自定义地控制逻辑信号。"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2PSASM.EFFECT"
+msgstr "使用汇编代码处理并输出控制信号。"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4PSASM.NAME"
+msgstr "高级PSASM汇编CPU 4IO"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4PSASM.DESC"
+msgstr "允许您使用汇编代码更自定义地控制逻辑信号。"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4PSASM.EFFECT"
+msgstr "使用汇编代码处理并输出控制信号。"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU8PSASM.NAME"
+msgstr "高级PSASM汇编CPU 8IO"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU8PSASM.DESC"
+msgstr "允许您使用汇编代码更自定义地控制逻辑信号。"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU8PSASM.EFFECT"
+msgstr "使用汇编代码处理并输出控制信号。"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2JS.NAME"
+msgstr "简单JS CPU 2IO"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2JS.DESC"
+msgstr "允许您使用JavaScript代码更自定义地控制逻辑信号。"
+
+msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU2JS.EFFECT"
+msgstr "使用JavaScript代码处理并输出控制信号。"
+
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4JS.NAME"
-msgstr "简易CPU 4IO (JS)"
+msgstr "简单JS CPU 4IO"
 
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4JS.DESC"
 msgstr "允许您使用JavaScript代码更自定义地控制逻辑信号。"
@@ -41,7 +86,7 @@ msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU4JS.EFFECT"
 msgstr "使用JavaScript代码处理并输出控制信号。"
 
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU8JS.NAME"
-msgstr "简易CPU 8IO (JS)"
+msgstr "简单JS CPU 8IO"
 
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.FCPU8JS.DESC"
 msgstr "允许您使用JavaScript代码更自定义地控制逻辑信号。"
@@ -194,7 +239,7 @@ msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.DIGITDUPLICANTSENSOR.EFFECT"
 msgstr "输出一个复制人数量整数数值。"
 
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.DIGITCRITTERCOUNTSENSOR.NAME"
-msgstr "小动物数量传感器"
+msgstr "数字小动物数量传感器"
 
 msgctxt "ONICPU.STRINGS.BUILDINGS.PREFABS.DIGITCRITTERCOUNTSENSOR.DESC"
 msgstr "可以用于统计房间内小动物和蛋的数量"
@@ -247,6 +292,13 @@ msgstr "编辑程序"
 msgctxt "ONICPU.STRINGS.UI.USERMENUACTIONS.FCPUMENU.TOOLTIP"
 msgstr "点击开始编辑当前单元的程序"
 
+msgctxt "ONICPU.STRINGS.UI.USERMENUACTIONS.FCPUMENU.MANUAL"
+msgstr "查看帮助文档"
+
+msgctxt "ONICPU.STRINGS.UI.USERMENUACTIONS.FCPUMENU.MANUAL_TOOLTIP"
+msgstr "点击查看CPU单元的编程帮助文档，需要联网查看"
+
+
 msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_BUTTON"
 msgstr "清空"
 
@@ -292,6 +344,15 @@ msgstr "内存数据"
 msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.NO_LOGS"
 msgstr "无日志输出"
 
+msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.TITLE_EDITOR"
+msgstr "CPU编辑操作"
+
+msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.TITLE_CONTROL_SPEED"
+msgstr "CPU速度控制"
+
+msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.TITLE_LANG"
+msgstr "语言设置"
+
 msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.DIGITCONST.SIDESCREEN_TITLE"
 msgstr "设置输出数值"
 
@@ -306,3 +367,15 @@ msgstr "应用输入框中输入的数值"
 
 msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.DIGITCONST.NOT_A_VALID_NUMBER"
 msgstr "输入的不是一个有效的整形数值"
+
+msgctxt "ONICPU.STRINGS.RESEARCH.TECHS.DIGITSENSORS.NAME"
+msgstr "数字化传感器"
+
+msgctxt "ONICPU.STRINGS.RESEARCH.TECHS.DIGITSENSORS.DESC"
+msgstr "允许您使用数字化传感器读取数字信号"
+
+msgctxt "ONICPU.STRINGS.RESEARCH.TECHS.FASTCPU.NAME"
+msgstr "数字化CPU"
+
+msgctxt "ONICPU.STRINGS.RESEARCH.TECHS.FASTCPU.DESC"
+msgstr "允许您使用代码更自定义地控制逻辑信号"
