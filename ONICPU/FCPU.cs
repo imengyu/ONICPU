@@ -23,6 +23,7 @@ namespace ONICPU
       None = 0,
       AssemblyCode,
       JavaScript,
+      PSASM,
     }
 
     #region Port value
@@ -72,7 +73,25 @@ namespace ONICPU
     private string programValue;
     [Serialize]
     private string breakpointState;
+    [Serialize]
+    public int cpuSpeed = 3;
 
+    public static List<float> CPUSpeedArray = new List<float>()
+    {
+      0.1f, 0.2f, 0.5f, 1f, 2f, 5, 10
+    };
+    private float cpuSpeedReal = 1;
+
+    public int CPUSpeed
+    {
+      get { return cpuSpeed; }
+      set { 
+        cpuSpeed = value;
+        cpuSpeedReal = CPUSpeedArray[cpuSpeed];
+        if (cpuSpeedReal > 1 && CPUType == FCPUType.AssemblyCode)
+          (executor as FCPUExecutorAssemblyCode).FrameExecuteTickCount = (short)(8 * cpuSpeedReal);
+      }
+    }
     public FCPUType CPUType = FCPUType.None;
 
     public string BreakpointState
@@ -220,6 +239,7 @@ namespace ONICPU
       executor.onStateChanged += Executor_onStateChanged;
       executor.Init();
       executor.Restore(cpuState);
+      CPUSpeed = cpuSpeed;
       if (DoCompileProgram() && executor.State == FCPUState.Looping)
         executor.Start();
     }
@@ -332,6 +352,7 @@ namespace ONICPU
     private List<LogicEventHandler> inputs = new List<LogicEventHandler>();
     private List<LogicPortVisualizer> outputs = new List<LogicPortVisualizer>();
     private List<LogicEventSender> outputSenders = new List<LogicEventSender>();
+    private LogicEventHandler resetOne;
     private LogicEventHandler controlOne;
 
     public int portCount = 4;
@@ -373,9 +394,22 @@ namespace ONICPU
       controlPortOffsets = new CellOffset[2]
       {
         new CellOffset(0, 0),
-        new CellOffset(0, 0)
+        new CellOffset(0, 1)
       };
-      if (portCount == 4)
+      if (portCount == 2)
+      {
+        inputPortOffsets = new CellOffset[2]
+        {
+          new CellOffset(-1, 1),
+          new CellOffset(-1, 0)
+        };
+        outputPortOffsets = new CellOffset[2]
+        {
+          new CellOffset(1, 1),
+          new CellOffset(1, 0)
+        };
+      }
+      else if (portCount == 4)
       {
         inputPortOffsets = new CellOffset[4]
         {
@@ -391,6 +425,7 @@ namespace ONICPU
           new CellOffset(1, 1),
           new CellOffset(1, 0)
         };
+        controlPortOffsets[1].y = 3;
       }
       else if (portCount == 8)
       {
@@ -416,6 +451,7 @@ namespace ONICPU
           new CellOffset(1, 1),
           new CellOffset(1, 0)
         };
+        controlPortOffsets[1].y = 7;
       }
 
       for (int i = 0; i < portCount; i++)
@@ -446,7 +482,9 @@ namespace ONICPU
         }, null, LogicPortSpriteType.RibbonOutput);
         outputSenders[i].SetValue(GetOutputValue(i));
       }
+
       controlOne = new LogicEventHandler(ControlCellOne, UpdateStateControl, null, LogicPortSpriteType.ControlInput);
+      resetOne = new LogicEventHandler(ControlCellTwo, UpdateStateReset, null, LogicPortSpriteType.Input);
 
       //Copy from LogicGate, hash may change
       Subscribe(774203113, OnBuildingBrokenDelegate);
@@ -681,6 +719,15 @@ namespace ONICPU
 
       RefreshAnimation();
     }
+    private void UpdateStateReset(int new_value, int prev_value)
+    {
+      if (cleaningUp)
+        return;
+      var resetValue = ((resetOne != null) ? resetOne.Value : 0) != 0;
+      if (resetValue && executor != null)
+        executor.ExecuteReset();
+      RefreshAnimation();
+    }
     private void UpdateState(int new_value, int prev_value)
     {
       if (cleaningUp)
@@ -794,6 +841,10 @@ namespace ONICPU
         }
       }
     }
+    public void OnShowCPUManual()
+    {
+
+    }
 
     #endregion
 
@@ -830,10 +881,25 @@ namespace ONICPU
 
     #region Code
 
+    private int sleepTick = 0;
     private void ExecCode()
     {
       if (enableValue || showProgramEditor)
+      {
+        if (cpuSpeedReal < 1)
+        {
+          if (sleepTick > 0) {
+            sleepTick--;
+            return;
+          }
+          else
+          {
+            sleepTick = (int)(1.0f / cpuSpeedReal) - 1;
+          }
+        }
+
         executor.ExecuteTicks();
+      }
     }
 
     #endregion

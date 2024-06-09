@@ -1,19 +1,14 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static DetailsScreen;
 
 namespace ONICPU
 {
   public class FCPUEditorUI : MonoBehaviour
   {
-    const int MAX_PIN = 8;
-    const int MAX_REGUSTER = 8;
-
     public KInputField ProgramInputField;
     public LocText ProgramStatusText;
     public FCPUExecutor executor;
@@ -314,7 +309,7 @@ namespace ONICPU
       var EmptyImageRectTransform = EmptyImage.AddComponent<RectTransform>();
       var EmptyImageImage = EmptyImage.AddComponent<Image>();
 
-      var StopButton = Instantiate(UIUtils.KButtonPrefab.gameObject, ButtonBarRectTransform);
+      var StopButton = Instantiate(UIUtils.ButtonPrefab.gameObject, ButtonBarRectTransform);
       EmptyImageRectTransform.SetParent(StopButton.transform);
       EmptyImageRectTransform.sizeDelta = new Vector2(23, 23);
       EmptyImageRectTransform.anchoredPosition = new Vector2(0, 0);
@@ -475,7 +470,7 @@ namespace ONICPU
         {
           lineTexts[line] = lineText.GetComponent<LocText>();
           var button = lineText.gameObject.AddComponent<KButton>();
-          button.soundPlayer = UIUtils.KButtonPrefab.soundPlayer;
+          button.soundPlayer = UIUtils.ButtonPrefab.kButton.soundPlayer;
           button.onPointerUp += () =>
           {
             Debug.Log("ToggleBreakpointStateLine " + line);
@@ -486,7 +481,7 @@ namespace ONICPU
 
       {
         var button = ProgramStatusText.gameObject.AddComponent<KButton>();
-        button.soundPlayer = UIUtils.KButtonPrefab.soundPlayer;
+        button.soundPlayer = UIUtils.ButtonPrefab.kButton.soundPlayer;
         button.onPointerUp += () =>
         {
           onShowFullStatus(ProgramStatusText.text);

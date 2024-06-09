@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
-using NiL.JS.Expressions;
 
 namespace ONICPU
 {
@@ -375,10 +373,6 @@ namespace ONICPU
                 case "ACC": return WrapNum(SystemRegisters.ACC);
                 case "SP": return WrapNum(SystemRegisters.SP);
                 case "PC": return WrapNum(SystemRegisters.PC);
-                case "P0": return WrapNum(InputOutput.Read(0));
-                case "P1": return WrapNum(InputOutput.Read(1));
-                case "P2": return WrapNum(InputOutput.Read(2));
-                case "P3": return WrapNum(InputOutput.Read(3));
               }
               break;
             }
@@ -405,10 +399,6 @@ namespace ONICPU
                 case "ACC": SystemRegisters.ACC = (short)v.Value; return;
                 case "SP": SystemRegisters.SP = (short)v.Value; return;
                 case "PC": SystemRegisters.PC = (short)v.Value; return;
-                case "P0": InputOutput.Write(0, (int)v.Value); return;
-                case "P1": InputOutput.Write(1, (int)v.Value); return;
-                case "P2": InputOutput.Write(2, (int)v.Value); return;
-                case "P3": InputOutput.Write(3, (int)v.Value); return;
               }
               break;
             }
@@ -608,25 +598,29 @@ namespace ONICPU
       In,
       Out,
 
-      Mov = 10,   //mov dst...[R/O] src[V/I/O/R] - Copy signal from source to destination
+      Mov = 10,    //mov dst...[R/O] src[V/I/O/R] - Copy signal from source to destination
       Xchg,        //xch reg1[R] reg2[R]          - Swap signals in memory cells.
       Xchd,
       Swap,
 
-      Add = 20,   //
-      Sub,        //
-      Cmp,        //
-      Inc,        //
-      Dec,        //
-      Mul,        //
-      Div,        //
-      Mod,        //
-      Neg,        //
+      Setb,        //
+      Clr,         //
+      Cpl,         //
 
-      And = 40,   //
-      Or,         //
-      Xor,        //
-      Not,        //
+      Add = 20,    //Calc ops
+      Sub,
+      Cmp,
+      Inc,
+      Dec,
+      Mul,
+      Div,
+      Mod,
+      Neg,
+
+      And = 40,    //Logic ops
+      Or,
+      Xor,
+      Not,
       Test,
       Shl,
       Sal,
@@ -634,16 +628,16 @@ namespace ONICPU
       Sar,
       Rol,
       Ror,
-      Rl,        //
-      Rr,        //
-      Rcl,        //
-      Rcr,        //
+      Rl,
+      Rr,
+      Rcl,
+      Rcr,
 
-      Jmp = 50,   //jmp [A] - Jump to address.
-      Call,   //
-      Ret,   //
-      Jz,   //
-      Jnz,   //
+      Jmp = 50,   //Jump ops  jmp [A] - Jump to address.
+      Call,
+      Ret,
+      Jz,
+      Jnz,
       Je,
       Jne,
       Ja,
@@ -681,15 +675,6 @@ namespace ONICPU
     {
       if (ProgramOpDefines.Count == 0)
       {
-        int i = 0;
-        for (; i < InputOutput.InputValues.Length; i++)
-          ProgramInternalSfrOpDefines.Add($"P{i}");
-        for (; i < InputOutput.InputValues.Length + InputOutput.OutputValues.Length; i++)
-        {
-          ProgramInternalSfrOpDefines.Add($"P{i}");
-          ProgramInternalSfrOpWriteable.Add($"P{i}");
-        }
-
         AddProgramOpDefines(new ProgramOpDefine(ProgramOpcode.Nop));
         AddProgramOpDefines(new ProgramOpDefine(ProgramOpcode.Rst)
         {
@@ -865,9 +850,15 @@ namespace ONICPU
         //Program
         line2 = 0;
         line = 0;
-        foreach (var item in lines)
+        foreach (var str in lines)
         {
           line2++;
+          var item = str;
+
+          //Remove comment
+          var commentIndex = item.IndexOf(";");
+          if (commentIndex >= 0)
+            item = item.Substring(0, commentIndex);
 
           if (string.IsNullOrWhiteSpace(item))
           {
@@ -1075,7 +1066,8 @@ namespace ONICPU
     {
       if (State == FCPUState.Looping)
       {
-        SystemRegisters.PC = 0;
+        if (SystemRegisters.PC >= ProgramCompiledLines.Count - 1)
+          SystemRegisters.PC = 0;
         int maxTick = FrameExecuteTickCount;
         while (maxTick > 0)
         {

@@ -1,0 +1,3 @@
+[submodule "FAST-PSASM"]
+	path = FAST-PSASM
+	url = https://github.com/tastynoob/FAST-PSASM.git
