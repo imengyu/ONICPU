@@ -407,7 +407,7 @@ namespace ONICPU
       StopButtonButtonRectTransform.anchoredPosition = new Vector2(StopButtonButtonRectTransform.anchoredPosition.x, y);
       StopButtonButton.LabelKey = key;
       StopButtonButton.LabelText = str;
-      StopButtonButton.TooltipText = tooltip;
+      StopButtonButton.TooltipKey = tooltip;
       return StopButtonButton;
     }
     public static RectTransform AddSpaceLine(float width, float height, RectTransform parent)

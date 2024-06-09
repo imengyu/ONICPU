@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using ONICPU.ui;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using TMPro;
@@ -9,19 +10,21 @@ namespace ONICPU
 {
   public class FCPUEditorUI : MonoBehaviour
   {
+    private const int MAX_LINE = 300;
+
     public KInputField ProgramInputField;
     public LocText ProgramStatusText;
     public FCPUExecutor executor;
 
     private RectTransform ProgramInputLineTexts;
     private RectTransform ProgramStatusLines;
-    private KButton StepButton;
-    private KButton PlayPauseButton;
+    private FButton StepButton;
+    private FButton PlayPauseButton;
     private bool componentGetted = false;
     private int activeLine = -1;
-    private bool[] breakpointState = new bool[FCPUExecutor.MAX_LINE];
-    private GameObject[] breakpointPoints = new GameObject[FCPUExecutor.MAX_LINE];
-    private LocText[] lineTexts = new LocText[FCPUExecutor.MAX_LINE];
+    private bool[] breakpointState = new bool[MAX_LINE];
+    private GameObject[] breakpointPoints = new GameObject[MAX_LINE];
+    private LocText[] lineTexts = new LocText[MAX_LINE];
     private LocText[] registerValueTexts = null;
     private LocText[] inputValueTexts = null;
     private LocText[] outputValueTexts = null;
@@ -109,7 +112,7 @@ namespace ONICPU
 
       var strs = breakpointStateStr.Split(',');
       int i;
-      for (i = 0; i < FCPUExecutor.MAX_LINE; i++)
+      for (i = 0; i < MAX_LINE; i++)
         breakpointState[i] = false;
       i = 0;
       foreach (string str in strs)
@@ -120,7 +123,7 @@ namespace ONICPU
         i++;
       }
 
-      for (i = 0; i < FCPUExecutor.MAX_LINE; i++)
+      for (i = 0; i < MAX_LINE; i++)
         breakpointPoints[i].SetActive(breakpointState[i]);
     }
     public string GetBreakpointStateStr()
@@ -190,7 +193,8 @@ namespace ONICPU
             logTexts[0].text = Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.NO_LOGS");
         }
 
-        PlayPauseButton.fgImage.sprite = executor.State == FCPUState.Looping ? SpritePause : SpritePlay;
+        PlayPauseButton.Icon = executor.State == FCPUState.Looping ? SpritePause : SpritePlay;
+        PlayPauseButton.UpdateButton();
       }
     }
 
@@ -305,55 +309,45 @@ namespace ONICPU
 
       //Debug.Log("2");
 
-      var EmptyImage = new GameObject("Image");
-      var EmptyImageRectTransform = EmptyImage.AddComponent<RectTransform>();
-      var EmptyImageImage = EmptyImage.AddComponent<Image>();
-
       var StopButton = Instantiate(UIUtils.ButtonPrefab.gameObject, ButtonBarRectTransform);
-      EmptyImageRectTransform.SetParent(StopButton.transform);
-      EmptyImageRectTransform.sizeDelta = new Vector2(23, 23);
-      EmptyImageRectTransform.anchoredPosition = new Vector2(0, 0);
-      Destroy(StopButton.transform.GetChild(0).gameObject);
-
-      var StopButtonButton = StopButton.GetComponent<KButton>();
+      var StopButtonButton = StopButton.GetComponent<FButton>();
       var StopButtonButtonRectTransform = StopButton.GetComponent<RectTransform>();
-      StopButtonButton.GetComponent<ToolTip>().FixedStringKey = "STRINGS.UI.UISIDESCREENS.FCPU.STOP_BUTTON_TOOLTIP";
+      StopButtonButton.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.STOP_BUTTON_TOOLTIP";
+      StopButtonButton.Icon = SpriteStop;
       StopButton.name = "StopButton";
-      StopButtonButton.fgImage = EmptyImageImage;
-      StopButtonButton.fgImage.sprite = SpriteStop;
       UIAnchorPosUtils.SetUIPivot(StopButtonButtonRectTransform, UIPivot.TopRight);
       UIAnchorPosUtils.SetUIAnchor(StopButtonButtonRectTransform, UIAnchor.Left, UIAnchor.Top);
       StopButtonButtonRectTransform.sizeDelta = new Vector2(32, 32);
       StopButtonButtonRectTransform.anchoredPosition = new Vector2(width - 84, 0);
 
-      var ResetButton = Instantiate(StopButton, ButtonBarRectTransform);
-      var ResetButtonButton = ResetButton.GetComponent<KButton>();
+      var ResetButton = Instantiate(UIUtils.ButtonPrefab.gameObject, ButtonBarRectTransform);
+      var ResetButtonButton = ResetButton.GetComponent<FButton>();
       var ResetButtonRectTransform = ResetButton.GetComponent<RectTransform>();
-      ResetButton.GetComponent<ToolTip>().FixedStringKey = "STRINGS.UI.UISIDESCREENS.FCPU.RESET_BUTTON_TOOLTIP";
       ResetButton.name = "ResetButton";
-      ResetButtonButton.fgImage.sprite = SpriteBreakpoint;
+      ResetButtonButton.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.RESET_BUTTON_TOOLTIP";
+      ResetButtonButton.Icon = SpriteBreakpoint;
       UIAnchorPosUtils.SetUIPivot(ResetButtonRectTransform, UIPivot.TopRight);
       UIAnchorPosUtils.SetUIAnchor(ResetButtonRectTransform, UIAnchor.Left, UIAnchor.Top);
       ResetButtonRectTransform.sizeDelta = new Vector2(32, 32);
       ResetButtonRectTransform.anchoredPosition = new Vector2(width - 120, 0);
 
-      var PlayPauseButton = Instantiate(StopButton, ButtonBarRectTransform);
-      var PlayPauseButtonButton = PlayPauseButton.GetComponent<KButton>();
+      var PlayPauseButton = Instantiate(UIUtils.ButtonPrefab.gameObject, ButtonBarRectTransform);
+      var PlayPauseButtonButton = PlayPauseButton.GetComponent<FButton>();
       var PlayPauseButtonRectTransform = PlayPauseButton.GetComponent<RectTransform>();
-      PlayPauseButton.GetComponent<ToolTip>().FixedStringKey = "STRINGS.UI.UISIDESCREENS.FCPU.PLAYPAUSE_BUTTON_TOOLTIP";
       PlayPauseButton.name = "PlayPauseButton";
-      PlayPauseButtonButton.fgImage.sprite = SpritePlay;
+      PlayPauseButtonButton.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.PLAYPAUSE_BUTTON_TOOLTIP";
+      PlayPauseButtonButton.Icon = SpritePlay;
       UIAnchorPosUtils.SetUIPivot(PlayPauseButtonRectTransform, UIPivot.TopRight);
       UIAnchorPosUtils.SetUIAnchor(PlayPauseButtonRectTransform, UIAnchor.Left, UIAnchor.Top);
       PlayPauseButtonRectTransform.sizeDelta = new Vector2(32, 32);
       PlayPauseButtonRectTransform.anchoredPosition = new Vector2(width - 52, 0);
 
-      var StepButtonButton = Instantiate(StopButton, ButtonBarRectTransform);
-      var StepButtonButtonButton = StepButtonButton.GetComponent<KButton>();
+      var StepButtonButton = Instantiate(UIUtils.ButtonPrefab.gameObject, ButtonBarRectTransform);
+      var StepButtonButtonButton = StepButtonButton.GetComponent<FButton>();
       var StepButtonButtonRectTransform = StepButtonButton.GetComponent<RectTransform>();
-      StepButtonButton.GetComponent<ToolTip>().FixedStringKey = "STRINGS.UI.UISIDESCREENS.FCPU.STEP_BUTTON_TOOLTIP";
       StepButtonButton.name = "StepButton";
-      StepButtonButtonButton.fgImage.sprite = SpriteNext;
+      StepButtonButtonButton.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.STEP_BUTTON_TOOLTIP";
+      StepButtonButtonButton.Icon = SpriteNext;
       UIAnchorPosUtils.SetUIPivot(StepButtonButtonRectTransform, UIPivot.TopRight);
       UIAnchorPosUtils.SetUIAnchor(StepButtonButtonRectTransform, UIAnchor.Left, UIAnchor.Top);
       StepButtonButtonRectTransform.sizeDelta = new Vector2(32, 32);
@@ -414,7 +408,7 @@ namespace ONICPU
       //Debug.Log("5");
 
       float y = 0;
-      for (int i = 0; i < 300; i++)
+      for (int i = 0; i < MAX_LINE; i++)
       {
         UIUtils.AddTextLine((i + 1).ToString(), $"Line{i}", lineCodeWidth, lineHeight, 0, -y, ProgramInputLineTextRectTransform);
         UIUtils.AddImageLine(SpriteBreakpoint, $"BreakPoint{i}", lineHeight, lineHeight, -y, ProgramInputLineTextRectTransform);
@@ -460,22 +454,26 @@ namespace ONICPU
       ProgramStatusText = transform.Find("ProgramStatusText").GetComponent<LocText>();
       var ProgramEditorScrollbar = transform.Find("Scrollbar").GetComponent<Scrollbar>();
       var ScrollRect = transform.Find("ScrollRect").GetComponent<ScrollRect>();
-      for (int i = 0; i < FCPUExecutor.MAX_LINE; i++)
+      for (int i = 0; i < MAX_LINE; i++)
       {
         var line = i;
-        breakpointPoints[line] = ProgramInputLineTexts.Find($"BreakPoint{line}").gameObject;
-
-        var lineText = ProgramInputLineTexts.Find($"Line{line}");
-        if (lineText != null)
+        var t = ProgramInputLineTexts.Find($"BreakPoint{line}");
+        if (t != null)
         {
-          lineTexts[line] = lineText.GetComponent<LocText>();
-          var button = lineText.gameObject.AddComponent<KButton>();
-          button.soundPlayer = UIUtils.ButtonPrefab.kButton.soundPlayer;
-          button.onPointerUp += () =>
+          breakpointPoints[line] = t.gameObject;
+
+          var lineText = ProgramInputLineTexts.Find($"Line{line}");
+          if (lineText != null)
           {
-            Debug.Log("ToggleBreakpointStateLine " + line);
-            ToggleBreakpointStateLine(line);
-          };
+            lineTexts[line] = lineText.GetComponent<LocText>();
+            var button = lineText.gameObject.AddComponent<KButton>();
+            button.soundPlayer = UIUtils.ButtonPrefab.kButton.soundPlayer;
+            button.onPointerUp += () =>
+            {
+              Debug.Log("ToggleBreakpointStateLine " + line);
+              ToggleBreakpointStateLine(line);
+            };
+          }
         }
       }
 
@@ -499,14 +497,14 @@ namespace ONICPU
         onResetButtonClick.Invoke();
         FlushInfo();
       };
-      PlayPauseButton = transform.Find("ButtonBar/PlayPauseButton").GetComponent<KButton>();
-      PlayPauseButton.onBtnClick += (KKeyCode obj) =>
+      PlayPauseButton = transform.Find("ButtonBar/PlayPauseButton").GetComponent<FButton>();
+      PlayPauseButton.OnClick += () =>
       {
         onPlayPauseButtonClick.Invoke();
         FlushInfo();
       };
-      StepButton = transform.Find("ButtonBar/StepButton").GetComponent<KButton>();
-      StepButton.onBtnClick += (KKeyCode obj) =>
+      StepButton = transform.Find("ButtonBar/StepButton").GetComponent<FButton>();
+      StepButton.OnClick += () =>
       {
         onStepButtonClick.Invoke();
         FlushInfo();

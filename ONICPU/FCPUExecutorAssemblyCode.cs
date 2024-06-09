@@ -962,17 +962,20 @@ namespace ONICPU
 
     public void UpdateBreakPointState(string breakPointStateStr)
     {
-      var strs = breakPointStateStr.Split(',');
       int i;
       for (i = 0; i < FCPUExecutor.MAX_LINE; i++)
         ProgramBreakpointStates[i] = false;
-      i = 0;
-      foreach (string str in strs)
+      if (!string.IsNullOrEmpty(breakPointStateStr))
       {
-        if (i >= ProgramBreakpointStates.Length)
-          break;
-        ProgramBreakpointStates[i] = str == "1";
-        i++;
+        var strs = breakPointStateStr.Split(',');
+        i = 0;
+        foreach (string str in strs)
+        {
+          if (i >= ProgramBreakpointStates.Length)
+            break;
+          ProgramBreakpointStates[i] = str == "1";
+          i++;
+        }
       }
     }
 
@@ -984,11 +987,6 @@ namespace ONICPU
       Accessables.Reset();
       InputOutput.Reset();
       SystemRegisters.Reset();
-    }
-    private void HaltAndReportError(string message)
-    {
-      State = FCPUState.HaltByError;
-      onError.Invoke(message);
     }
 
     public override void Init()

@@ -23,7 +23,6 @@ namespace ONICPU
       None = 0,
       AssemblyCode,
       JavaScript,
-      PSASM,
     }
 
     #region Port value
@@ -103,6 +102,8 @@ namespace ONICPU
       set
       {
         breakpointState = value;
+        if (executor != null && executor is FCPUExecutorAssemblyCode)
+          (executor as FCPUExecutorAssemblyCode).UpdateBreakPointState(breakpointState);
       }
     }
     public string ProgramValue
@@ -124,9 +125,6 @@ namespace ONICPU
         }
       }
     }
-
-    [MyCmpAdd]
-    private CopyBuildingSettings copyBuildingSettings;
 
     private void OnCopySettings(object data)
     {
@@ -240,6 +238,7 @@ namespace ONICPU
       executor.Init();
       executor.Restore(cpuState);
       CPUSpeed = cpuSpeed;
+      BreakpointState = breakpointState;
       if (DoCompileProgram() && executor.State == FCPUState.Looping)
         executor.Start();
     }
@@ -660,6 +659,8 @@ namespace ONICPU
 
         logicCircuitSystem.AddToNetworks(ControlCellOne, controlOne, is_endpoint: true);
         logicCircuitManager.AddVisElem(controlOne);
+        logicCircuitSystem.AddToNetworks(ControlCellTwo, resetOne, is_endpoint: true);
+        logicCircuitManager.AddVisElem(resetOne);
 
         RefreshAnimation();
       }
@@ -781,14 +782,14 @@ namespace ONICPU
               .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_COMPILE"), (screen) =>
               {
                 ProgramValue = fCPUEditorUI.GetProgram();
-                breakpointState = fCPUEditorUI.GetBreakpointStateStr();
+                BreakpointState = fCPUEditorUI.GetBreakpointStateStr();
               }, rightSide: true)
               .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_CLOSE"), (screen) =>
               {
                 var program = fCPUEditorUI.GetProgram();
                 if (ProgramValue != program)
                   ProgramValue = program;
-                breakpointState = fCPUEditorUI.GetBreakpointStateStr();
+                BreakpointState = fCPUEditorUI.GetBreakpointStateStr();
                 showProgramEditor = false;
                 CameraController.Instance.DisableUserCameraControl = false;
                 screen.SetIsEditing(false);
@@ -843,7 +844,7 @@ namespace ONICPU
     }
     public void OnShowCPUManual()
     {
-
+      ManagementMenu.Instance.OpenCodexToEntry("FCPUTIPS0");
     }
 
     #endregion

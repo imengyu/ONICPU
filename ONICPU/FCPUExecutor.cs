@@ -6,7 +6,7 @@ namespace ONICPU
 {
   public class FCPUExecutor
   {
-    public const int MAX_LINE = 256;
+    public const int MAX_LINE = 400;
 
     #region Events
 
@@ -116,6 +116,11 @@ namespace ONICPU
           onStateChanged?.Invoke(_FCPUState);
         }
       }
+    }
+    protected void HaltAndReportError(string message)
+    {
+      State = FCPUState.HaltByError;
+      onError.Invoke(message);
     }
 
     #endregion

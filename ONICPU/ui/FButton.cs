@@ -26,7 +26,7 @@ namespace ONICPU.ui
       label = transform.Find("Label").GetComponent<LocText>();
 
       var EmptyImage = new GameObject("Image");
-      var imageRectTransform = EmptyImage.AddComponent<RectTransform>();
+      imageRectTransform = EmptyImage.AddComponent<RectTransform>();
       image = EmptyImage.AddComponent<Image>();
       imageRectTransform.SetParent(transform);
       imageRectTransform.sizeDelta = new Vector2(23, 23);
@@ -63,7 +63,7 @@ namespace ONICPU.ui
       }
       else if (!string.IsNullOrEmpty(TooltipKey))
       {
-        toolTip.FixedStringKey = TooltipKey;
+        toolTip.toolTip = Utils.GetLocalizeString(TooltipKey);
         toolTip.enabled = true;
       }
       else

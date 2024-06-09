@@ -132,11 +132,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FCPU2PSASMConfig.cs" />
+    <Compile Include="CodexPatch.cs" />
     <Compile Include="FCPU2Config.cs" />
     <Compile Include="FCPU2JSConfig.cs" />
-    <Compile Include="FCPU4PSASMConfig.cs" />
-    <Compile Include="FCPU8PSASMConfig.cs" />
     <Compile Include="ui\FCheckbox.cs" />
     <Compile Include="digit\DigitConstant.cs" />
     <Compile Include="digit\DigitConstantConfig.cs" />
@@ -272,6 +270,15 @@
     </Content>
     <Content Include="assets\sprite\breakpoint.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\sprite\h2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\sprite\h3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\sprite\h5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\sprite\next.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

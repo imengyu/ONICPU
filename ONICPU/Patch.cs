@@ -22,9 +22,6 @@ namespace ONICPU
       ModUtil.AddBuildingToPlanScreen("Automation", FCPU2JSConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", FCPU4JSConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", FCPU8JSConfig.ID, SubcategoryID);
-      ModUtil.AddBuildingToPlanScreen("Automation", FCPU2PSASMConfig.ID, SubcategoryID);
-      ModUtil.AddBuildingToPlanScreen("Automation", FCPU4PSASMConfig.ID, SubcategoryID);
-      ModUtil.AddBuildingToPlanScreen("Automation", FCPU8PSASMConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitSegBaseConfig.ID + 8, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitSegBaseConfig.ID + 16, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitSegBaseConfig.ID + 32, SubcategoryID);
@@ -88,16 +85,12 @@ namespace ONICPU
         Utils.AddTechnologyLine("DigitSensors", "FastCPU");
       }
 
-
       Utils.AddBuildingToTechnology("FastCPU", FCPU2Config.ID);
       Utils.AddBuildingToTechnology("FastCPU", FCPU4Config.ID);
       Utils.AddBuildingToTechnology("FastCPU", FCPU8Config.ID);
       Utils.AddBuildingToTechnology("FastCPU", FCPU2JSConfig.ID);
       Utils.AddBuildingToTechnology("FastCPU", FCPU4JSConfig.ID);
       Utils.AddBuildingToTechnology("FastCPU", FCPU8JSConfig.ID);
-      Utils.AddBuildingToTechnology("FastCPU", FCPU2PSASMConfig.ID);
-      Utils.AddBuildingToTechnology("FastCPU", FCPU4PSASMConfig.ID);
-      Utils.AddBuildingToTechnology("FastCPU", FCPU8PSASMConfig.ID);
       Utils.AddBuildingToTechnology("FastCPU", DigitConstantConfig.ID);
       Utils.AddBuildingToTechnology("DigitSensors", DigitSegBaseConfig.ID + 8);
       Utils.AddBuildingToTechnology("DigitSensors", DigitSegBaseConfig.ID + 16);
@@ -191,7 +184,7 @@ namespace ONICPU
       {
         self.currentValue = UIUtils.AddLabel(
           parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 100),
-          LabelAlignment: TMPro.TextAlignmentOptions.Center
+          LabelAlignment: TMPro.TextAlignmentOptions.Top | TMPro.TextAlignmentOptions.Center
         );
       });
 
@@ -228,7 +221,7 @@ namespace ONICPU
           for (var i = 0; i < FCPU.CPUSpeedArray.Count; i++)
           {
             var sp = FCPU.CPUSpeedArray[i];
-            dropdown.options.Add(new Dropdown.OptionData() { text = $"{sp}x({sp * 5}hz)" });
+            dropdown.options.Add(new Dropdown.OptionData() { text = $"{sp}x ({sp * 5}hz)" });
           }
         });
 
@@ -242,7 +235,7 @@ namespace ONICPU
       {
         const int ROW_SIZE = 8;
 
-        UIUtils.AddVerticalLayout(content, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 300), (parent, verticalLayoutGroup) =>
+        UIUtils.AddVerticalLayout(content, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 250), (parent, verticalLayoutGroup) =>
         {
           verticalLayoutGroup.childControlHeight = false;
           verticalLayoutGroup.childForceExpandHeight = false;
@@ -282,10 +275,14 @@ namespace ONICPU
           );
           
           DigitConstantSideScreen.valueInput = UIUtils.AddInputField(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30)).field;
+
+          UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
+
           DigitConstantSideScreen.valueApplyButton = UIUtils.AddButton(
             parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30), 
             LabelKey: "STRINGS.UI.UISIDESCREENS.DIGITCONST.APPLY", TooltipKey: "STRINGS.UI.UISIDESCREENS.DIGITCONST.APPLY_INPUT"
           );
+
           UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
         }); 
       });
