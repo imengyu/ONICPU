@@ -18,8 +18,6 @@ namespace ONICPU
       public FCPUState State = FCPUState.NotStart;
       [JsonProperty]
       public FCPUInputOutput InputOutput;
-      [JsonProperty]
-      public string StorageData;
     }
 
     public int LogsMaxCount = 16;
@@ -287,8 +285,6 @@ function __stopAllTimer() {
       {
         if (restoreData.InputOutput != null)
           InputOutput.CopyValuesFrom(restoreData.InputOutput);
-        if (restoreData.StorageData != null) 
-          StorageData = restoreData.StorageData;
         State = restoreData.State;
       }
     }
@@ -297,6 +293,14 @@ function __stopAllTimer() {
       FCPURestoreable restoreData = new FCPURestoreable();
       restoreData.InputOutput = InputOutput;
       restoreData.State = State;
+      return JsonConvert.SerializeObject(restoreData);
+    }
+    public override void LoadStorage(string json)
+    {
+      StorageData = json;
+    }
+    public override string SaveStorage()
+    {
       try
       {
         if (__saveStorage != null)
@@ -306,8 +310,13 @@ function __stopAllTimer() {
       {
         HandleError(e, "SaveStorage: ");
       }
-      restoreData.StorageData = StorageData;
-      return JsonConvert.SerializeObject(restoreData);
+      return StorageData;
+    }
+    public override void ResetStorage()
+    {
+      StorageData = "";
+      if (State == FCPUState.Looping && __initStorage != null)
+        __initStorage.Call(new Arguments() { StorageData });
     }
     public override void Start()
     {
@@ -349,8 +358,8 @@ function __stopAllTimer() {
     }
     public override void Stop()
     {
-      State = FCPUState.HaltByUser;
       base.Stop();
+      State = FCPUState.HaltByUser;
       if (stop != null)
       {
         try

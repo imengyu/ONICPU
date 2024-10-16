@@ -433,6 +433,22 @@ msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_BUTTON_TOOLTIP"
 msgid ""
 msgstr "清空日志显示列表"
 
+msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_STORAGE_BUTTON"
+msgid ""
+msgstr "清空存储"
+
+msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_STORAGE_BUTTON_TOOLTIP"
+msgid ""
+msgstr "清空存储在当前单元内的数据，不可恢复"
+
+msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.SHOW_STORAGE_BUTTON"
+msgid ""
+msgstr "显示存储"
+
+msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.SHOW_STORAGE_BUTTON_TOOLTIP"
+msgid ""
+msgstr "显示CPU单元当前存储的数据快照"
+
 msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.REQUIRE_EN"
 msgid ""
 msgstr "EN绿色信号控制运行"
@@ -500,6 +516,10 @@ msgstr "寄存器"
 msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_MEM"
 msgid ""
 msgstr "内存数据"
+
+msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_STORAGES"
+msgid ""
+msgstr "存储数据"
 
 msgctxt "ONICPU.STRINGS.UI.UISIDESCREENS.FCPU.NO_LOGS"
 msgid ""

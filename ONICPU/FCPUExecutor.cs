@@ -143,6 +143,17 @@ namespace ONICPU
     {
       return "";
     }
+    public virtual void LoadStorage(string json)
+    {
+    }
+    public virtual void ResetStorage()
+    {
+
+    }
+    public virtual string SaveStorage()
+    {
+      return "";
+    }
     public virtual void Start()
     {
       onBeforeStart?.Invoke();

@@ -1,15 +1,17 @@
 ﻿using KSerialization;
+using Newtonsoft.Json;
 using ONICPU.ui;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using static ONICPU.FCPUExecutor;
 
 namespace ONICPU
 {
-  [SerializationConfig(MemberSerialization.OptIn)]
+  [SerializationConfig(KSerialization.MemberSerialization.OptIn)]
   public class FCPU : LogicGateBase, ILogicEventSender, ILogicNetworkConnection, ISaveLoadable, ISim200ms
   {
     private static KAnimHashedString PORT_SYMBOL_PROG = "dot_prog";
@@ -68,6 +70,8 @@ namespace ONICPU
 
     [Serialize]
     private string cpuState = "";//JSON
+    [Serialize]
+    private string cpuStorageData = "";//JSON
     [Serialize]
     private string programValue;
     [Serialize]
@@ -245,6 +249,7 @@ namespace ONICPU
       executor.onBeforeStart = Executor_onBeforeStart;
       executor.Init();
       executor.Restore(cpuState);
+      executor.LoadStorage(cpuStorageData);
       CPUSpeed = cpuSpeed;
       BreakpointState = breakpointState;
       if (DoCompileProgram() && executor.State == FCPUState.Looping)
@@ -310,11 +315,22 @@ namespace ONICPU
     }
     private void Executor_onStopped()
     {
-      SaveLoaderSave_Patch_onBeforeSave();
+      cpuStorageData = executor.SaveStorage();
     }
     private void Executor_onBeforeStart()
     {
-      executor.Restore(cpuState);
+      executor.LoadStorage(cpuStorageData);
+    }
+    private void SaveLoaderSave_Patch_onBeforeSave()
+    {
+      if (executor != null)
+      {
+        cpuState = executor.Save();
+        if (executor.State == FCPUState.Looping)
+        {
+          cpuStorageData = executor.SaveStorage();
+        }
+      }
     }
 
     private int GetOutputValue(int index)
@@ -520,10 +536,6 @@ namespace ONICPU
       SaveLoaderSave_Patch.onBeforeSave += SaveLoaderSave_Patch_onBeforeSave;
     }
 
-    private void SaveLoaderSave_Patch_onBeforeSave()
-    {
-      cpuState = executor.Save();
-    }
 
     protected override void OnCleanUp()
     {
@@ -871,7 +883,7 @@ namespace ONICPU
           fCPUEditorUI.executor = executor;
           fCPUEditorUI.SetValues(programValue, ProgramState, breakpointState);
           fCPUEditorUI.SetProgramPath(Path.Combine(Util.RootFolder(), "FCPU", saveFileName));
-          fCPUEditorUI.onPlayPauseButtonClick += () =>
+          fCPUEditorUI.onPlayPauseButtonClick = () =>
           {
             enableValue = true;
             RefreshAnimation();
@@ -884,32 +896,73 @@ namespace ONICPU
               executor.Start();
             }
           };
-          fCPUEditorUI.onStepButtonClick += () =>
+          fCPUEditorUI.onStepButtonClick = () =>
           {
             enableValue = true;
             RefreshAnimation();
             executor.ExecuteTick();
             executor.State = FCPUState.HaltByUser;
           };
-          fCPUEditorUI.onResetButtonClick += () =>
+          fCPUEditorUI.onResetButtonClick = () =>
           {
             enableValue = false;
             RefreshAnimation();
             executor.ExecuteReset();
           };
-          fCPUEditorUI.onStopButtonClick += () =>
+          fCPUEditorUI.onStopButtonClick = () =>
           {
             enableValue = false;
             RefreshAnimation();
             executor.Stop();
           };
-          fCPUEditorUI.onShowFullLog += (log) =>
+          fCPUEditorUI.onShowFullLog = (log) =>
           {
             UIUtils.ShowMessageModal(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_LOG_TITLE"), log);
           };
-          fCPUEditorUI.onShowFullStatus += (log) =>
+          fCPUEditorUI.onShowFullStatus = (log) =>
           {
             UIUtils.ShowMessageModal(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_STATUS_TITLE"), log);
+          };
+          fCPUEditorUI.onClearStorage = () =>
+          {
+            cpuStorageData = "";
+            if (executor != null)
+              executor.ResetStorage();
+          };
+          fCPUEditorUI.onShowStorage = () =>
+          {
+            if (executor != null && executor.State == FCPUState.Looping)
+            {
+              cpuStorageData = executor.SaveStorage();
+            }
+            if (CPUType == FCPUType.JavaScript)
+            {
+              var sb = new StringBuilder();
+              var js = JsonConvert.DeserializeObject<Dictionary<string, object>>(cpuStorageData);
+              var len = 0;
+              foreach (var item in js)
+              {
+                sb.Append(item.Key);
+                sb.Append(" : ");
+                sb.AppendLine(item.Value.ToString());
+
+                if (len > 30)
+                {
+                  sb.Append("... (");
+                  sb.Append(js.Count - len);
+                  sb.Append("+)");
+                }
+
+                len++;
+              }
+              if (js.Count == 0)
+                sb.Append("Empty, No storaged data");
+
+              UIUtils.ShowMessageModal(
+                "storage",
+                sb.ToString()
+              );
+            }
           };
         }
         else
