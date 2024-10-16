@@ -33,6 +33,8 @@ namespace ONICPU
       FCPUSystemRegisters SystemRegisters { get; }
 
       void Jump(short address);
+      void Call(short address);
+      void Ret();
       FCPUData WrapNum(long v);
       void StackPush(ProgramOpParam v);
       void StackPop(ProgramOpParam v);
@@ -326,6 +328,15 @@ namespace ONICPU
     {
       SystemRegisters.PC = address;
     }
+    public void Call(short address)
+    {
+      StackPush(SystemRegisters.PC);
+      SystemRegisters.PC = address;
+    }
+    public void Ret()
+    {
+      SystemRegisters.PC = (short)StackPop();
+    }
     public FCPUData MemoryRead(long address)
     {
       return WrapNum(Accessables.StackAndHeap[address]);
@@ -340,14 +351,24 @@ namespace ONICPU
     }
     public void StackPush(ProgramOpParam param)
     {
+      StackPush(Read(param).Value);
+    }
+    public void StackPush(long value)
+    {
       SystemRegisters.SP++;
       if (SystemRegisters.SP >= Accessables.StackSize)
         throw new Exception("Stack overflow");
-      Accessables.StackAndHeap[SystemRegisters.SP] = Read(param).Value;
+      Accessables.StackAndHeap[SystemRegisters.SP] = value;
     }
-    public void StackPop(ProgramOpParam param)
+    public long StackPop()
     {
-      Write(param, StackRead());
+      var val = StackRead().Value;
+      SystemRegisters.SP--;
+      return val;
+    }
+    public void StackPop(ProgramOpParam v)
+    {
+      Write(v, StackRead());
       SystemRegisters.SP--;
     }
     public FCPUData Read(ProgramOpParam param)
@@ -792,6 +813,17 @@ namespace ONICPU
           ParamFirstType = ProgramOpParamTypeAddress,
           Execute = (context, program) => context.Jump(context.Read(program.OpFirst).ShortValue)
         });
+        AddProgramOpDefines(new ProgramOpDefine(ProgramOpcode.Call)
+        {
+          RequiredParam = 1,
+          ParamFirstType = ProgramOpParamTypeAddress,
+          Execute = (context, program) => context.Call(context.Read(program.OpFirst).ShortValue)
+        });
+        AddProgramOpDefines(new ProgramOpDefine(ProgramOpcode.Ret)
+        {
+          RequiredParam = 0,
+          Execute = (context, program) => context.Ret()
+        });
         AddProgramOpDefines(new ProgramOpJumpConditionDefine(ProgramOpcode.Je, (context) => context.SystemRegisters.PSW.ZF == 1));
         AddProgramOpDefines(new ProgramOpJumpConditionDefine(ProgramOpcode.Jne, (context) => context.SystemRegisters.PSW.ZF == 0));
         AddProgramOpDefines(new ProgramOpJumpConditionDefine(ProgramOpcode.Jz, (context) => context.SystemRegisters.PSW.ZF == 1));
@@ -812,6 +844,8 @@ namespace ONICPU
         AddProgramOpDefines(new ProgramOpJumpConditionDefine(ProgramOpcode.Jnae, (context) => !(context.SystemRegisters.PSW.CF == 0 || context.SystemRegisters.PSW.ZF == 1)));
         AddProgramOpDefines(new ProgramOpJumpConditionDefine(ProgramOpcode.Jbe, (context) => context.SystemRegisters.PSW.CF == 1 || context.SystemRegisters.PSW.ZF == 1));
         AddProgramOpDefines(new ProgramOpJumpConditionDefine(ProgramOpcode.Jnbe, (context) => !(context.SystemRegisters.PSW.CF == 1 || context.SystemRegisters.PSW.ZF == 1)));
+      
+      
       }
     }
 
@@ -1016,11 +1050,13 @@ namespace ONICPU
     }
     public override void Start()
     {
+      base.Start();
       State = FCPUState.Looping;
     }
     public override void Stop()
     {
       State = FCPUState.HaltByUser;
+      base.Stop();
     }
     public override void ExecuteReset()
     {
@@ -1076,5 +1112,6 @@ namespace ONICPU
         }
       }
     }
+
   }
 }

@@ -18,12 +18,18 @@ namespace ONICPU.ui
     public string TooltipText = "";
     public string TooltipKey = "";
     public Sprite Icon = null;
-    public Vector2 IconSize = default(Vector2);
+    public Vector2 Size = default;
+    public Vector2 IconSize = default;
 
     void Start()
     {
-      toolTip = GetComponent<ToolTip>();
-      label = transform.Find("Label").GetComponent<LocText>();
+      toolTip = gameObject.GetComponent<ToolTip>();
+      if (label == null)
+        label = transform.Find("Label")?.GetComponent<LocText>();
+      if (toolTip == null)
+        toolTip = gameObject.AddComponent<ToolTip>();
+      if (kButton == null)
+        kButton = gameObject.GetComponent<KButton>();
 
       var EmptyImage = new GameObject("Image");
       imageRectTransform = EmptyImage.AddComponent<RectTransform>();
@@ -42,8 +48,8 @@ namespace ONICPU.ui
       if (!string.IsNullOrEmpty(LabelKey))
       {
         label.key = LabelKey;
-        label.gameObject.SetActive(true);
         label.ApplySettings();
+        label.gameObject.SetActive(true);
       }
       else if (!string.IsNullOrEmpty(LabelText))
       {
@@ -52,8 +58,13 @@ namespace ONICPU.ui
       }
       else
       {
+        if (label != null)
+        {
+          if (label.key == "STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_BUTTON")
+            throw new System.Exception("Fuck!!!  " + gameObject.name + " LabelKey: " + LabelKey );
+          label.gameObject.SetActive(false);
+        }
         hasLabel = false;
-        label.gameObject.SetActive(false);
       }
 
       if (!string.IsNullOrEmpty(TooltipText))
@@ -71,13 +82,24 @@ namespace ONICPU.ui
         toolTip.enabled = false;
       }
 
+
+      if (Size.x != 0 && Size.y != 0)
+      {
+        (transform as RectTransform).sizeDelta = new Vector2(Size.x, Size.y);
+        var layout = GetComponent<LayoutElement>();
+        if (layout != null)
+        {
+          layout.minWidth = Size.x;
+          layout.minHeight = Size.y;
+        }
+      }
       if (Icon != null)
       {
         image.gameObject.SetActive(true);
         image.sprite = Icon;
         if (IconSize.x == 0) IconSize.x = 23;
         if (IconSize.y == 0) IconSize.y = 23;
-        imageRectTransform.sizeDelta = IconSize;
+        imageRectTransform.sizeDelta = new Vector2(IconSize.x, IconSize.y);
 
         if (hasLabel)
         {

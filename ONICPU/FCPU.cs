@@ -1,11 +1,10 @@
 ﻿using KSerialization;
-using NiL.JS.BaseLibrary;
+using ONICPU.ui;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-using YamlDotNet.Core.Tokens;
 using static ONICPU.FCPUExecutor;
 
 namespace ONICPU
@@ -27,6 +26,7 @@ namespace ONICPU
 
     #region Port value
 
+    [Serialize]
     private bool enableValue = false;
     private List<int> inputValues = new List<int>();
     [Serialize]
@@ -74,7 +74,12 @@ namespace ONICPU
     private string breakpointState;
     [Serialize]
     public int cpuSpeed = 3;
+    [Serialize]
+    public string saveFileName = "";
+    [Serialize]
+    public bool requireENCheck = true;
 
+    public static int CPUSpeedArray1xIndex = 4;
     public static List<float> CPUSpeedArray = new List<float>()
     {
       0.1f, 0.2f, 0.5f, 1f, 2f, 5, 10
@@ -143,7 +148,8 @@ namespace ONICPU
       set
       {
         programState = value;
-        fCPUEditorUI?.SetProgramStatus(programState, programErrorState);
+        if (showProgramEditor)
+          fCPUEditorUI?.SetProgramStatus(programState, programErrorState);
       }
     }
     private FCPUExecutor executor = null;
@@ -231,10 +237,12 @@ namespace ONICPU
         default: return;
       }
       executor.InputOutput = new FCPUIO(this);
-      executor.onBreakpoint += Executor_onBreakpoint;
-      executor.onError += Executor_onError;
-      executor.onExecute += Executor_onExecute;
-      executor.onStateChanged += Executor_onStateChanged;
+      executor.onBreakpoint = Executor_onBreakpoint;
+      executor.onError = Executor_onError;
+      executor.onExecute = Executor_onExecute;
+      executor.onStateChanged = Executor_onStateChanged;
+      executor.onStopped = Executor_onStopped;
+      executor.onBeforeStart = Executor_onBeforeStart;
       executor.Init();
       executor.Restore(cpuState);
       CPUSpeed = cpuSpeed;
@@ -250,7 +258,8 @@ namespace ONICPU
     {
       ProgramState = line >= 0 ? $"Executing normally at line: {line + 1}" : "Program is running";
       programErrorState = false;
-      fCPUEditorUI?.SetActiveLine(line);
+      if (showProgramEditor)
+        fCPUEditorUI?.SetActiveLine(line);
       if (programErrorState)
       {
         programErrorState = false;
@@ -296,7 +305,16 @@ namespace ONICPU
     private void Executor_onBreakpoint(int line)
     {
       ProgramState = $"Program paused at line: {line}";
-      fCPUEditorUI?.SetActiveLine(line);
+      if (showProgramEditor)
+        fCPUEditorUI?.SetActiveLine(line);
+    }
+    private void Executor_onStopped()
+    {
+      SaveLoaderSave_Patch_onBeforeSave();
+    }
+    private void Executor_onBeforeStart()
+    {
+      executor.Restore(cpuState);
     }
 
     private int GetOutputValue(int index)
@@ -387,6 +405,13 @@ namespace ONICPU
     {
       base.OnSpawn();
 
+      if (string.IsNullOrEmpty(saveFileName)) {
+        saveFileName = System.DateTime.Now.ToString("yyyyMMddHHmmss");
+        if (CPUType == FCPUType.JavaScript)
+          saveFileName += ".js";
+        else if (CPUType == FCPUType.AssemblyCode)
+          saveFileName += ".asm";
+      }
       if (string.IsNullOrEmpty(programValue) && CPUType == FCPUType.JavaScript)
         programValue = FCPUExecutorJavaScript.DefaultCode;
 
@@ -693,7 +718,10 @@ namespace ONICPU
 
         logicCircuitSystem.RemoveFromNetworks(ControlCellOne, controlOne, is_endpoint: true);
         logicCircuitManager.RemoveVisElem(controlOne);
+        logicCircuitSystem.RemoveFromNetworks(ControlCellTwo, resetOne, is_endpoint: true);
+        logicCircuitManager.RemoveVisElem(resetOne);
         controlOne = null;
+        resetOne = null;
 
         RefreshAnimation();
       }
@@ -702,10 +730,10 @@ namespace ONICPU
     {
       if (cleaningUp)
         return;
-      enableValue = ((controlOne != null) ? controlOne.Value : 0) != 0;
 
-      if (!showProgramEditor)
+      if (requireENCheck && !showProgramEditor)
       {
+        enableValue = ((controlOne != null) ? controlOne.Value : 0) != 0;
         if (connected && enableValue)
         {
           if (executor.State != FCPUState.Looping && !programCompileErrorState)
@@ -744,7 +772,7 @@ namespace ONICPU
     #region UI
 
     private bool showProgramEditor = false;
-    private FCPUEditorUI fCPUEditorUI = null;
+    private static FCPUEditorUI fCPUEditorUI = null;
 
     public void OnShowProgramEditor()
     {
@@ -771,14 +799,11 @@ namespace ONICPU
           );
           screenInstance.SetHeader(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_TITLE"))
               .AddUI(FCPUEditorUI.ProgramEditorPanelPrefab, out fCPUEditorUI)
-              .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_COPY"), (screen) =>
-              {
-                fCPUEditorUI.Copy();
-              })
-              .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_PASTE"), (screen) =>
-              {
-                fCPUEditorUI.Patse();
-              })
+              .AddOption(false, out var copyButton, out var copyButtonText)
+              .AddOption(false, out var pasteButton, out var pasteButtonText)
+              .AddOption(false, out var loadButton, out var loadButtonText)
+              .AddOption(false, out var saveButton, out var saveButtonText)
+              .AddOption(false, out var openButton, out var openButtonText)
               .AddOption(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_COMPILE"), (screen) =>
               {
                 ProgramValue = fCPUEditorUI.GetProgram();
@@ -796,6 +821,47 @@ namespace ONICPU
                 screen.Show(false);
               }, rightSide: true)
               .SetIsEditing(true);
+
+          var button = copyButton.gameObject.AddComponent<FButton>();
+          button.label = copyButtonText;
+          button.Icon = FCPUEditorUI.SpriteCopy;
+          button.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_COPY";
+          button.IconSize = new Vector2(16, 16);
+          button.Size = new Vector2(45, 45);
+          button.OnClick += () => fCPUEditorUI.Copy();
+
+          button = pasteButton.gameObject.AddComponent<FButton>();
+          button.label = pasteButtonText;
+          button.Icon = FCPUEditorUI.SpritePaste;
+          button.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_PASTE";
+          button.IconSize = new Vector2(16, 16);
+          button.Size = new Vector2(45, 45);
+          button.OnClick += () => fCPUEditorUI.Patse();
+
+          button = loadButton.gameObject.AddComponent<FButton>();
+          button.label = loadButtonText;
+          button.Icon = FCPUEditorUI.SpriteLoad;
+          button.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_LOAD";
+          button.IconSize = new Vector2(16, 16);
+          button.Size = new Vector2(45, 45);
+          button.OnClick += () => fCPUEditorUI.Load();
+
+          button = saveButton.gameObject.AddComponent<FButton>();
+          button.label = saveButtonText;
+          button.Icon = FCPUEditorUI.SpriteSave;
+          button.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_SAVE";
+          button.IconSize = new Vector2(16, 16);
+          button.Size = new Vector2(45, 45);
+          button.OnClick += () => fCPUEditorUI.Save();
+
+          button = openButton.gameObject.AddComponent<FButton>();
+          button.label = openButtonText;
+          button.Icon = FCPUEditorUI.SpriteOpen;
+          button.TooltipKey = "STRINGS.UI.UISIDESCREENS.FCPU.EDITOR_OPEN";
+          button.IconSize = new Vector2(16, 16);
+          button.Size = new Vector2(45, 45);
+          button.OnClick += () => fCPUEditorUI.Open();
+
           ScreenPrefabs.Instance.InfoDialogScreen.pause = true;
 
           //Resize modal
@@ -804,24 +870,37 @@ namespace ONICPU
           CameraController.Instance.DisableUserCameraControl = true;
           fCPUEditorUI.executor = executor;
           fCPUEditorUI.SetValues(programValue, ProgramState, breakpointState);
+          fCPUEditorUI.SetProgramPath(Path.Combine(Util.RootFolder(), "FCPU", saveFileName));
           fCPUEditorUI.onPlayPauseButtonClick += () =>
           {
+            enableValue = true;
+            RefreshAnimation();
             if (executor.State == FCPUState.Looping)
+            {
               executor.State = FCPUState.HaltByUser;
+            }
             else if (!programCompileErrorState)
+            {
               executor.Start();
+            }
           };
           fCPUEditorUI.onStepButtonClick += () =>
           {
+            enableValue = true;
+            RefreshAnimation();
             executor.ExecuteTick();
             executor.State = FCPUState.HaltByUser;
           };
           fCPUEditorUI.onResetButtonClick += () =>
           {
+            enableValue = false;
+            RefreshAnimation();
             executor.ExecuteReset();
           };
           fCPUEditorUI.onStopButtonClick += () =>
           {
+            enableValue = false;
+            RefreshAnimation();
             executor.Stop();
           };
           fCPUEditorUI.onShowFullLog += (log) =>
@@ -845,6 +924,13 @@ namespace ONICPU
     public void OnShowCPUManual()
     {
       ManagementMenu.Instance.OpenCodexToEntry("FCPUTIPS0");
+    }
+    public void OnRequireENCheckChanged()
+    {
+      if (requireENCheck)
+        UpdateStateControl(1, 1);
+      else
+        enableValue = true;
     }
 
     #endregion
@@ -885,7 +971,7 @@ namespace ONICPU
     private int sleepTick = 0;
     private void ExecCode()
     {
-      if (enableValue || showProgramEditor)
+      if (enableValue)
       {
         if (cpuSpeedReal < 1)
         {

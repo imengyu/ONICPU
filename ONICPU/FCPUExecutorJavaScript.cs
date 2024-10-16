@@ -311,6 +311,7 @@ function __stopAllTimer() {
     }
     public override void Start()
     {
+      base.Start();
       State = FCPUState.Looping;
       try
       {
@@ -324,6 +325,9 @@ function __stopAllTimer() {
         HandleError(e, "StartPreinit: ");
         return;
       }
+
+      onExecute.Invoke(-1);
+
       if (start != null)
       {
         try
@@ -336,7 +340,6 @@ function __stopAllTimer() {
           if (!resetCalled)
             UpdateValues();
 
-          onExecute.Invoke(-1);
         }
         catch(Exception e)
         {
@@ -347,6 +350,7 @@ function __stopAllTimer() {
     public override void Stop()
     {
       State = FCPUState.HaltByUser;
+      base.Stop();
       if (stop != null)
       {
         try

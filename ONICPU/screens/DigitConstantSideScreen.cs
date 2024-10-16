@@ -34,14 +34,14 @@ namespace ONICPU.screens
       valueInput.text = target.Value.ToString();
       for (var i = 0; i < MAX_BIT; i++)
       {
-        var on = LogicCircuitNetwork.IsBitActive(i, target.Value);
+        var on = i == 31 ? (target.Value >> 31 != 0) : LogicCircuitNetwork.IsBitActive(i, target.Value);
         valueButtons[i].label.text = on ? "1" : "0";
         valueButtons[i].label.color = on ? TextActiveColor : TextDeactiveColor;
       }
     }
     private void UpdateOneBit(int bit)
     {
-      var on = LogicCircuitNetwork.IsBitActive(bit, target.Value);
+      var on = bit == 31 ? (target.Value >> 31 != 0) : LogicCircuitNetwork.IsBitActive(bit, target.Value);
       if (on)
         target.Value &= ~(1 << bit);
       else

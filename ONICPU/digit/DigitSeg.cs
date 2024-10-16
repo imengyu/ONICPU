@@ -12,7 +12,7 @@ namespace ONICPU.digit
 
     public static readonly KAnimHashedString SegNegId = new KAnimHashedString("seg_neg");
     private static readonly KAnimHashedString[][] SegId = new KAnimHashedString[7][];
-    private const int MAX_SEG_VALUE = 15;
+    private const int MAX_SEG_VALUE = 16;
 
     public int displayBits = 0;
 
@@ -60,6 +60,14 @@ namespace ONICPU.digit
       }
     }
 
+
+    private void DisplayOverflow(int maxCount)
+    {
+      Update7Seg(kbac, 1, 0);
+      Update7Seg(kbac, 0, 15);
+      for (short i = 2; i < maxCount; i++)
+        Update7Seg(kbac, i, MAX_SEG_VALUE);
+    }
     private void RefreshAnim()
     {
       switch(displayBits)
@@ -68,8 +76,27 @@ namespace ONICPU.digit
         case 16:
           {
             var maxCount = (displayBits == 8 ? 3 : 5);
-            short number1 = (displayBits == 8 ? ((short)(char)value) : ((short)value)); //8bit char; 16 bit short
-            short number = System.Math.Abs(number1);
+            if (displayBits == 8)
+            {
+              if (value > 999 || value < -999)
+              {
+                //of
+                DisplayOverflow(maxCount);
+                return;
+              }
+            }
+            else
+            {
+              if (value > short.MaxValue || value < short.MinValue)
+              {
+                //of
+                DisplayOverflow(maxCount);
+                return;
+              }
+            }
+
+            short number1 = (short)value; //8bit char; 16 bit short
+            short number = (short)Math.Abs((int)number1);
             short index = 0;
 
             if (number1 == 0)
@@ -106,15 +133,15 @@ namespace ONICPU.digit
           }
         case 32:
           {
-            var maxCount = 10;
-            var number1 = value;
+            const int maxCount = 10;
+            var number1 = (long)value;
             if (number1 > int.MaxValue || number1 < int.MinValue)
             {
-              for (short i = 0; i < maxCount; i++)
-                Update7Seg(kbac, i, MAX_SEG_VALUE);
+              //of
+              DisplayOverflow(maxCount);
               return;
             }
-            var number = System.Math.Abs(number1);
+            var number = Math.Abs(number1);
             short index = 0;
             if (number1 == 0)
             {
@@ -153,13 +180,13 @@ namespace ONICPU.digit
 
     private static readonly short[][] Seg7ActiveMap = new short[7][]
     {
-      new short[] { 2,3,5,6,7,8,9,0 },  //a
-      new short[] { 1,2,3,4,7,8,9,0 },  //b
-      new short[] { 1,3,4,5,6,7,8,9,0 },//c
-      new short[] { 2,3,5,6,8,9,0 },    //d
-      new short[] { 2,6,0,8 },          //e
-      new short[] { 4,5,6,8,9,0 },      //f
-      new short[] { 2,3,4,5,6,8,9 },    //g
+      new short[] { 2,3,5,6,7,8,9,0,10,12,14,15},     //a
+      new short[] { 1,2,3,4,7,8,9,0,10,13 },          //b
+      new short[] { 1,3,4,5,6,7,8,9,0,10,11,13 },     //c
+      new short[] { 2,3,5,6,8,9,0,11,12,13,14},       //d
+      new short[] { 2,6,0,8,10,11,12,13,14,15},       //e
+      new short[] { 4,5,6,8,9,0,10,11,12,14,15 },     //f
+      new short[] { 2,3,4,5,6,8,9,10,11,12,13,14,15 },//g
     };
 
     private void Update7Seg(KBatchedAnimController component, short index, short value)

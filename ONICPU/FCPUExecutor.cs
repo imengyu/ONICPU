@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using static ONICPU.FCPUExecutorAssemblyCode;
 using System;
 
 namespace ONICPU
@@ -74,6 +73,8 @@ namespace ONICPU
       }
     }
 
+    public System.Action onStopped;
+    public System.Action onBeforeStart;
 
     public class FCPUInputOutputBase : FCPUInputOutput
     {
@@ -144,11 +145,11 @@ namespace ONICPU
     }
     public virtual void Start()
     {
-      throw new NotImplementedException();
+      onBeforeStart?.Invoke();
     }
     public virtual void Stop()
     {
-      throw new NotImplementedException();
+      onStopped?.Invoke();
     }
     public virtual void ExecuteReset()
     {

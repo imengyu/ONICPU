@@ -24,17 +24,11 @@ namespace ONICPU
     public static FLabel LabelPrefab = null;
     public static FButton ButtonPrefab = null;
     public static FCheckbox CheckboxPrefab = null;
-
-    private static int getedInternalPrefabs = -1;
+    
     private static DetailsScreen.SideScreenRef critterSensorSideScreenRef = null;
 
     public static bool GetKleiInternalPrefabs()
     {
-      if (getedInternalPrefabs != -1)
-        return getedInternalPrefabs == 1;
-
-      getedInternalPrefabs = 0;
-
       Debug.Log("Get Prefabs");
 
       //Access private prefabs in DetailsScreen
@@ -111,7 +105,7 @@ namespace ONICPU
       //Get prefabs
       KInputFieldPrefab = typeof(AlarmSideScreen).GetField("nameInputField", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(alarmSideScreenRef.screenPrefab) as KInputField;
       LocTextPrefab = typeof(ActiveRangeSideScreen).GetField("activateLabel", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(activeRangeSideScreenRef.screenPrefab) as LocText;
-      ButtonPrefab = (artableSelectionSideScreenRef.screenPrefab as ArtableSelectionSideScreen).applyButton.gameObject.AddComponent<FButton>();
+      ButtonPrefab = Object.Instantiate((artableSelectionSideScreenRef.screenPrefab as ArtableSelectionSideScreen).applyButton.gameObject).AddComponent<FButton>();
       KScrollRectPrefab = skillsScreenscrollRectField.GetValue(skillsScreen) as KScrollRect;
       ScrollbarPrefab = DetailsScreen.Instance.transform.Find("Body/Scrollbar")?.gameObject.GetComponent<Scrollbar>();
       CheckboxPrefab = critterSensorSideScreenRef.screenPrefab.transform.Find("Contents/CheckboxGroup")?.gameObject.AddComponent<FCheckbox>();
@@ -167,10 +161,7 @@ namespace ONICPU
         Debug.LogWarning("KNumberInputFieldPrefab is null, maybe game was updated");
         return false;
       }
-
       ButtonPrefab.kButton = ButtonPrefab.GetComponent<KButton>();
-
-      getedInternalPrefabs = 1;
       return true;
     }
 
@@ -243,7 +234,7 @@ namespace ONICPU
       return groupVerticalLayoutGroup;
     }
 
-    public static FCheckbox AddCheckbox(RectTransform parent, FLayoutOptions layout = null, string LabelKey = "", string LabelText = "", AddLayoutApplyComponent<FCheckbox> makeUICb = null)
+    public static FCheckbox AddCheckbox(RectTransform parent, FLayoutOptions layout = null, string LabelKey = "", string LabelText = "", string TooltipKey = "", string TooltipText = "", AddLayoutApplyComponent<FCheckbox> makeUICb = null)
     {
       var check = Object.Instantiate(CheckboxPrefab, parent).GetComponent<FCheckbox>();
       check.LabelKey = LabelKey;
@@ -251,6 +242,27 @@ namespace ONICPU
       ApplyLayout(check.transform as RectTransform, layout);
       if (makeUICb != null)
         makeUICb(check);
+      if (TooltipKey != "" || TooltipText != "")
+      {
+        var toolTip = check.gameObject.GetComponent<ToolTip>();
+        if (toolTip == null)
+          toolTip = check.gameObject.AddComponent<ToolTip>();
+        if (!string.IsNullOrEmpty(TooltipText))
+        {
+          toolTip.toolTip = TooltipText;
+          toolTip.enabled = true;
+        }
+        else if (!string.IsNullOrEmpty(TooltipKey))
+        {
+          toolTip.toolTip = Utils.GetLocalizeString(TooltipKey);
+          toolTip.enabled = true;
+        }
+        else
+        {
+          toolTip.enabled = false;
+        }
+
+      }
       return check;
     }
     public static FLabel AddLabel(RectTransform parent, FLayoutOptions layout = null, string LabelKey = "", string LabelText = "", Color LabelColor = default(Color), TextAlignmentOptions LabelAlignment = TextAlignmentOptions.MidlineLeft, AddLayoutApplyComponent<FLabel> makeUICb = null)
@@ -395,8 +407,11 @@ namespace ONICPU
     public static FButton AddButtonLine(string str, string key, string tooltip, float x, float y, RectTransform parent, System.Action click, float width = 100, float height = 40)
     {
       var StopButton = Object.Instantiate(ButtonPrefab.gameObject, parent);
-      var StopButtonButton = StopButton.GetComponent<FButton>();
       var StopButtonButtonRectTransform = StopButton.GetComponent<RectTransform>();
+      var StopButtonButton = StopButton.GetComponent<FButton>();
+      StopButtonButton.LabelKey = key;
+      StopButtonButton.LabelText = str;
+      StopButtonButton.TooltipKey = tooltip;
       StopButton.GetComponent<ToolTip>().SetFixedStringKey(tooltip);
       if (click != null)
         StopButtonButton.OnClick += click;
@@ -405,9 +420,6 @@ namespace ONICPU
       UIAnchorPosUtils.SetUILeft(StopButtonButtonRectTransform, x);
       StopButtonButtonRectTransform.sizeDelta = new Vector2(width, height);
       StopButtonButtonRectTransform.anchoredPosition = new Vector2(StopButtonButtonRectTransform.anchoredPosition.x, y);
-      StopButtonButton.LabelKey = key;
-      StopButtonButton.LabelText = str;
-      StopButtonButton.TooltipKey = tooltip;
       return StopButtonButton;
     }
     public static RectTransform AddSpaceLine(float width, float height, RectTransform parent)

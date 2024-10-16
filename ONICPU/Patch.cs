@@ -1,7 +1,10 @@
 ﻿using HarmonyLib;
 using ONICPU.digit;
 using ONICPU.screens;
+using ONICPU.storage;
 using ONICPU.ui;
+using ONICPU.wireless;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -36,9 +39,13 @@ namespace ONICPU
       ModUtil.AddBuildingToPlanScreen("Automation", DigitTimeOfDaySensorConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitWattageSensorConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Automation", DigitConstantConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Automation", DigitBroadcastConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Automation", DigitReceiverConfig.ID, SubcategoryID);
       ModUtil.AddBuildingToPlanScreen("Power", DigitBatteryConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Base", DigitStorageLockerSmartConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Base", DigitLiquidReservoirConfig.ID, SubcategoryID);
+      ModUtil.AddBuildingToPlanScreen("Base", DigitGasReservoirConfig.ID, SubcategoryID);
     }
-
   }
   [HarmonyPatch(typeof(Db))]
   [HarmonyPatch("Initialize")]
@@ -48,40 +55,40 @@ namespace ONICPU
     {
       if (DlcManager.IsExpansion1Active())
       {
-        Utils.AddTechnology("DupeTrafficControl", "DigitSensors", new ResourceTreeNode()
+        Utils.AddTechnology("LogicCircuits", "DigitSensors", new ResourceTreeNode()
         {
-          nodeX = 1950.0f,
-          nodeY = -7554.0f,
+          nodeX = 1595.0f,
+          nodeY = -7800.0f,
           width = 250.0f,
           height = 72.0f,
         }, "_Computers");
-        Utils.AddTechnology("DigitSensors", "FastCPU", new ResourceTreeNode()
+        Utils.AddTechnology("LogicCircuits", "FastCPU", new ResourceTreeNode()
         {
-          nodeX = 2305.0f,
-          nodeY = -7554.0f,
+          nodeX = 1595.0f,
+          nodeY = -7470.0f,
           width = 250.0f,
           height = 72.0f,
         }, "_Computers");
-        Utils.AddTechnologyLine("DupeTrafficControl", "DigitSensors");
+        Utils.AddTechnologyLine("LogicCircuits", "DigitSensors");
         Utils.AddTechnologyLine("DigitSensors", "FastCPU");
       }
       else
       {
-        Utils.AddTechnology("DupeTrafficControl", "DigitSensors", new ResourceTreeNode()
+        Utils.AddTechnology("LogicCircuits", "DigitSensors", new ResourceTreeNode()
         {
-          nodeX = 1950.0f,
-          nodeY = -6834.80f,
+          nodeX = 6124.0f,
+          nodeY = -7134.80f,
           width = 250.0f,
           height = 72.0f,
         }, "_Computers");
-        Utils.AddTechnology("DigitSensors", "FastCPU", new ResourceTreeNode()
+        Utils.AddTechnology("LogicCircuits", "FastCPU", new ResourceTreeNode()
         {
-          nodeX = 6834.80f,
-          nodeY = -6834.80f,
+          nodeX = 6124.0f,
+          nodeY = -6804.80f,
           width = 250.0f,
           height = 72.0f,
         }, "_Computers");
-        Utils.AddTechnologyLine("DupeTrafficControl", "DigitSensors");
+        Utils.AddTechnologyLine("LogicCircuits", "DigitSensors");
         Utils.AddTechnologyLine("DigitSensors", "FastCPU");
       }
 
@@ -106,6 +113,11 @@ namespace ONICPU
       Utils.AddBuildingToTechnology("DigitSensors", DigitTimeOfDaySensorConfig.ID);
       Utils.AddBuildingToTechnology("DigitSensors", DigitWattageSensorConfig.ID);
       Utils.AddBuildingToTechnology("DigitSensors", DigitBatteryConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitBroadcastConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitReceiverConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitGasReservoirConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitLiquidReservoirConfig.ID);
+      Utils.AddBuildingToTechnology("DigitSensors", DigitStorageLockerSmartConfig.ID);
     }
   }
 
@@ -184,7 +196,7 @@ namespace ONICPU
       {
         self.currentValue = UIUtils.AddLabel(
           parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 100),
-          LabelAlignment: TMPro.TextAlignmentOptions.Top | TMPro.TextAlignmentOptions.Center
+          LabelAlignment: TMPro.TextAlignmentOptions.Center
         );
       });
 
@@ -216,14 +228,15 @@ namespace ONICPU
           LabelColor: Color.black, LabelAlignment: TMPro.TextAlignmentOptions.Center
         );
 
-        self.speedControl = UIUtils.AddDropdown(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30), (dropdown) =>
-        {
-          for (var i = 0; i < FCPU.CPUSpeedArray.Count; i++)
-          {
-            var sp = FCPU.CPUSpeedArray[i];
-            dropdown.options.Add(new Dropdown.OptionData() { text = $"{sp}x ({sp * 5}hz)" });
-          }
-        });
+        self.speedControl = UIUtils.AddDropdown(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30));
+
+        self.requireENCheck = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UISIDESCREENS.FCPU.REQUIRE_EN");
+
+        UIUtils.AddLabel(
+          parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 60),
+          "STRINGS.UI.UISIDESCREENS.FCPU.REQUIRE_EN_TOOLTIP",
+          LabelColor: Color.gray, LabelAlignment: TMPro.TextAlignmentOptions.Center
+        );
 
         UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
       });
@@ -286,17 +299,157 @@ namespace ONICPU
           UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
         }); 
       });
+
+      //DigitBroadcastSideScreen
+      //==================================
+
+      UIUtils.AddSideScreen<DigitBroadcastSideScreen>((parent, self) =>
+      {
+        self.currentValue = UIUtils.AddDropdown(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30), (dropdown) =>
+        {
+          var channelString = Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.DIGITBROADCAST.CHANNEL");
+          for (var i = 0; i < DigitBroadcastManager.CHANNEL_COUNT; i++)
+            dropdown.options.Add(new Dropdown.OptionData() { text = channelString + " " + (i + 1) });
+        });
+
+        UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
+        UIUtils.AddLabel(parent, LabelKey: "STRINGS.UI.UISIDESCREENS.DIGITBROADCAST.CHANNEL_OVERRIDE");
+        UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
+
+      }, "STRINGS.UI.UISIDESCREENS.DIGITBROADCAST.SIDESCREEN_TITLE");
+
+      //DigitReceiverSideScreen
+      //==================================
+
+      UIUtils.AddSideScreen<DigitReceiverSideScreen>((parent, self) =>
+      {
+        self.currentValue = UIUtils.AddDropdown(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 30), (dropdown) =>
+        {
+          var channelString = Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.DIGITBROADCAST.CHANNEL");
+          for (var i = 0; i < DigitBroadcastManager.CHANNEL_COUNT; i++)
+            dropdown.options.Add(new Dropdown.OptionData() { text = channelString + " " + (i + 1) });
+        });
+        UIUtils.AddSpace(parent, new FLayoutOptions(UIUtils.SIZE_SCREEN_WIDTH, 10));
+      }, "STRINGS.UI.UISIDESCREENS.DIGITBROADCAST.SIDESCREEN_TITLE");
+
+      //DigitSmartReservoirSideScreen
+      //==================================
+
+      UIUtils.AddSideScreen<DigitSmartReservoirSideScreen>((parent, self) =>
+      {
+        self.checkOutputPrecent = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UISIDESCREENS.DIGITSMARTRESERVOIR.OUTPUT_PRECENT");
+        self.checkOutputAmount = UIUtils.AddCheckbox(parent, LabelKey: "STRINGS.UI.UISIDESCREENS.DIGITSMARTRESERVOIR.OUTPUT_AMOUNT");
+      }, "STRINGS.BUILDINGS.PREFABS.DIGITSMARTRESERVOIR.NAME");
+
     }
   }
 
   //Patch LogicRibbonReader/Writer to allow select 32bit
-
   [HarmonyPatch(typeof(LogicRibbonReader), "OnSpawn")]
   public class LogicRibbonReaderOnSpawn_Patch
   {
     static void Postfix(LogicRibbonReader __instance)
     {
       __instance.bitDepth = 32;
+    }
+  }
+
+  //Fix reader and writer cant read corrent value in bit 31
+  [HarmonyPatch(typeof(LogicRibbonReader), "UpdateLogicCircuit")]
+  public class LogicRibbonReaderUpdateLogicCircuit_Patch
+  {
+    static void Postfix(LogicRibbonReader __instance)
+    {
+      LogicPorts component = __instance.GetComponent<LogicPorts>();
+      LogicWire.BitDepth bitDepth = LogicWire.BitDepth.NumRatings;
+      int portCell = component.GetPortCell(LogicRibbonReader.OUTPUT_PORT_ID);
+      GameObject gameObject = Grid.Objects[portCell, 31];
+      if (gameObject != null)
+      {
+        LogicWire component2 = gameObject.GetComponent<LogicWire>();
+        if (component2 != null)
+          bitDepth = component2.MaxBitDepth;
+      }
+      int currentValue = (int)typeof(LogicRibbonReader).GetField("currentValue", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(__instance);
+      if (bitDepth != 0 && bitDepth == LogicWire.BitDepth.FourBit)
+      {
+        int new_value = currentValue >> __instance.selectedBit;
+        component.SendSignal(LogicRibbonReader.OUTPUT_PORT_ID, Math.Abs(new_value));
+      }
+      else
+      {
+        int new_value = currentValue & (1 << __instance.selectedBit);
+        component.SendSignal(LogicRibbonReader.OUTPUT_PORT_ID, (new_value != 0) ? 1 : 0);
+      }
+      __instance.UpdateVisuals();
+    }
+  }
+
+  //Fix reader and writer cant read corrent value in bit 31
+  [HarmonyPatch(typeof(LogicRibbonReader), "IsBitActive")]
+
+  public class LogicRibbonReaderIsBitActive_Patch
+  {
+    static void Postfix(int bit, LogicRibbonReader __instance, ref bool __result)
+    {
+      if (bit == 31)
+      {
+        LogicCircuitNetwork logicCircuitNetwork = null;
+        LogicPorts ports = (LogicPorts)__instance.GetType().GetField("ports", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(__instance);
+        if (ports != null)
+        {
+          int portCell = ports.GetPortCell(LogicRibbonReader.INPUT_PORT_ID);
+          logicCircuitNetwork = Game.Instance.logicCircuitManager.GetNetworkForCell(portCell);
+        }
+        __result = logicCircuitNetwork?.OutputValue >> 31 != 0;
+      }
+    }
+  }
+  [HarmonyPatch(typeof(LogicRibbonWriter), "IsBitActive")]
+  public class LogicRibbonWriterIsBitActive_Patch
+  {
+    static void Postfix(int bit, LogicRibbonWriter __instance, ref bool __result)
+    {
+      if (bit == 31)
+      {
+        LogicCircuitNetwork logicCircuitNetwork = null;
+        LogicPorts ports = (LogicPorts)__instance.GetType().GetField("ports", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(__instance);
+        if (ports != null)
+        {
+          int portCell = ports.GetPortCell(LogicRibbonWriter.OUTPUT_PORT_ID);
+          logicCircuitNetwork = Game.Instance.logicCircuitManager.GetNetworkForCell(portCell);
+        }
+        __result = logicCircuitNetwork?.OutputValue >> 31 != 0;
+      }
+    }
+  }
+
+  //Fix research complete message too long that overflow screen problem
+  [HarmonyPatch(typeof(ResearchCompleteMessage), "GetMessageBody")]
+  public class ResearchCompleteMessageGetMessageBody_Patch
+  {
+    static void Postfix(ResearchCompleteMessage __instance, ref string __result)
+    {
+      Tech tech = ((ResourceRef<Tech>)
+        typeof(ResearchCompleteMessage)
+        .GetField("tech", BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetValue(__instance)
+      ).Get();
+      string text = "";
+      for (int i = 0; i < tech.unlockedItems.Count; i++)
+      {
+        if (i != 0)
+        {
+          text += ", ";
+        }
+        text += tech.unlockedItems[i].Name;
+        if (text.Length > 90)
+        {
+          text += "...";
+          break;
+        }
+      }
+      __result = string.Format(global::STRINGS.MISC.NOTIFICATIONS.RESEARCHCOMPLETE.MESSAGEBODY, tech.Name, text);
     }
   }
 

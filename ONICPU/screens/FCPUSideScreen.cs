@@ -11,6 +11,7 @@ namespace ONICPU.screens
     public Dropdown speedControl;
     public FButton editButton;
     public FButton manualButton;
+    public FCheckbox requireENCheck;
 
     protected override void OnSpawn()
     {
@@ -23,6 +24,14 @@ namespace ONICPU.screens
         if (target != null)
           target.CPUSpeed = v;
       });
+      requireENCheck.onCheckedChanged += (v) =>
+      {
+        if (target != null)
+        {
+          target.requireENCheck = v;
+          target.OnRequireENCheckChanged();
+        }
+      };
     }
 
     private void ManualButton_onBtnClick()
@@ -54,7 +63,14 @@ namespace ONICPU.screens
 
     private void LoadValues()
     {
+      speedControl.options.Clear();
+      for (var i = 0; i < (target.CPUType == FCPU.FCPUType.JavaScript ? FCPU.CPUSpeedArray1xIndex : FCPU.CPUSpeedArray.Count); i++)
+      {
+        var sp = FCPU.CPUSpeedArray[i];
+        speedControl.options.Add(new Dropdown.OptionData() { text = $"{sp}x ({sp * 5}hz)" });
+      }
       speedControl.value = target.CPUSpeed;
+      requireENCheck.Checked = target.requireENCheck;
     }
   }
 }

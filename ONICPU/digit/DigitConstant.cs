@@ -24,6 +24,7 @@ namespace ONICPU.digit
   
     protected override void OnSpawn()
     {
+      base.OnSpawn();
       OnToggle += OnSwitchToggled;
       ports = GetComponent<LogicPorts>();
       kbac = GetComponent<KBatchedAnimController>();

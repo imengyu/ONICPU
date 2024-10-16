@@ -38,6 +38,7 @@ namespace ONICPU
     private StringBuilder stringBuilder = new StringBuilder();
     private int tick = 0;
     private bool startNeedFlushInfo = true;
+    private string programPath = "";
 
     void Start()
     {
@@ -82,7 +83,7 @@ namespace ONICPU
         }
       }
       activeLine = line;
-      if (lineTexts[activeLine] != null)
+      if (line >= 0 && line < lineTexts.Length && lineTexts[activeLine] != null)
       {
         lineTexts[activeLine].color = TextActiveColor;
         lineTexts[activeLine].text = "▶ " + activeLine;
@@ -94,6 +95,20 @@ namespace ONICPU
         programStatus = "";
       ProgramStatusText.text = programStatus;
       ProgramStatusText.color = error ? TextErrorColor : TextNormalColor;
+    }
+    public void SetProgramPath(string _programPath)
+    {
+      programPath = _programPath;
+      var dir = Path.GetDirectoryName(programPath);
+      try
+      {
+        if (!Directory.Exists(dir))
+          Directory.CreateDirectory(dir);
+      } 
+      catch (System.Exception e)
+      {
+        Debug.LogWarning(e);
+      }
     }
     public void SetValues(string program, string programStatus, string breakpointStateStr)
     {
@@ -197,6 +212,40 @@ namespace ONICPU
         PlayPauseButton.UpdateButton();
       }
     }
+    public void Open()
+    {
+      if (!File.Exists(programPath))
+        Save();
+      if (File.Exists(programPath))
+        Application.OpenURL("file:///" + programPath);
+    }
+    public void Save()
+    {
+      try
+      {
+        File.WriteAllText(programPath, ProgramInputField.field.text);
+      }
+      catch (System.Exception e)
+      {
+        UIUtils.ShowMessageModal(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.TITLE_SAVE_ERROR"), "" + e);
+        return;
+      }
+      UIUtils.ShowMessageModal("", Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.TITLE_SAVE_SUCCESS"));
+    }
+    public void Load()
+    {
+      if (File.Exists(programPath))
+        try 
+        { 
+          ProgramInputField.SetDisplayValue(File.ReadAllText(programPath));
+        } 
+        catch (System.Exception e)
+        {
+          UIUtils.ShowMessageModal(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.TITLE_LOAD_ERROR"), "" + e);
+          return;
+        }
+      UIUtils.ShowMessageModal("", Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.TITLE_LOAD_SUCCESS"));
+    }
 
     private void ShowLogFullText(int index)
     {
@@ -228,6 +277,11 @@ namespace ONICPU
     public static Sprite SpriteNext = null;
     public static Sprite SpritePause = null;
     public static Sprite SpritePlay = null;
+    public static Sprite SpriteCopy = null;
+    public static Sprite SpritePaste = null;
+    public static Sprite SpriteLoad = null;
+    public static Sprite SpriteSave = null;
+    public static Sprite SpriteOpen = null;
 
     private const int padding = 12;
     private const int width = 700;
@@ -253,6 +307,12 @@ namespace ONICPU
       SpritePause = Utils.LoadSpriteFromFile(assetsPath + "pause.png", 32, 32);
       SpritePlay = Utils.LoadSpriteFromFile(assetsPath + "play.png", 32, 32);
       SpriteStop = Utils.LoadSpriteFromFile(assetsPath + "stop.png", 32, 32);
+
+      SpriteCopy = Utils.LoadSpriteFromFile(assetsPath + "copy.png", 20, 20);
+      SpritePaste = Utils.LoadSpriteFromFile(assetsPath + "clipboard.png", 20, 20);
+      SpriteLoad = Utils.LoadSpriteFromFile(assetsPath + "download.png", 20, 20);
+      SpriteSave = Utils.LoadSpriteFromFile(assetsPath + "export.png", 20, 20);
+      SpriteOpen = Utils.LoadSpriteFromFile(assetsPath + "document-download.png", 20, 20);
 
       var ProgramEditorPanel = new GameObject("ProgramEditorPanel");
       var RectTransform = ProgramEditorPanel.AddComponent<RectTransform>();
@@ -370,6 +430,10 @@ namespace ONICPU
 
       ScrollRectScrollRect.vertical = true;
       ScrollRectScrollRect.content.gameObject.name = "ScrollRectContent";
+
+      var PrefabSkillWidget = ScrollRect.transform.Find("ScrollRectContent/PrefabSkillWidget")?.gameObject;
+      if (PrefabSkillWidget != null)
+        Destroy(PrefabSkillWidget);
 
       var ScrollRectContent = new GameObject("Panel");
       var ScrollRectContentRectTransform = ScrollRectContent.AddComponent<RectTransform>();
@@ -587,7 +651,7 @@ namespace ONICPU
           y += 20;
           UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_LOGS"), "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, null, 16); y += 20;
 
-          UIUtils.AddButtonLine("",
+          var a = UIUtils.AddButtonLine("",
             "STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_BUTTON",
             "STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_BUTTON_TOOLTIP",
             leftWidth + 100, -y, ProgramStatusLines, ClearLogs, 100, 23
