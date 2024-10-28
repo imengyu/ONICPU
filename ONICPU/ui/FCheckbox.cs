@@ -31,11 +31,18 @@ namespace ONICPU.ui
       set {
         if (_Checked != value)
         {
-          _Checked = value;
-          if (Checkmark != null)
-            Checkmark.enabled = _Checked;
+          SetCheckedNoEvent(value);
           onCheckedChanged?.Invoke(_Checked);
         }
+      }
+    }
+    public void SetCheckedNoEvent(bool value)
+    {
+      if (_Checked != value)
+      {
+        _Checked = value;
+        if (Checkmark != null)
+          Checkmark.enabled = _Checked;
       }
     }
 

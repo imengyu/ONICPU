@@ -266,7 +266,14 @@ namespace ONICPU
         FlushInfo();
       }
     }
-
+    private void ShowStorage()
+    {
+      onShowStorage?.Invoke();
+    }
+    private void ClearStorage()
+    {
+      onClearStorage?.Invoke();
+    }
 
     //Get prefab and make ui
     //=====================================
@@ -580,12 +587,14 @@ namespace ONICPU
       componentGetted = true;
     }
 
-    public event System.Action onStopButtonClick;
-    public event System.Action onResetButtonClick;
-    public event System.Action onPlayPauseButtonClick;
-    public event System.Action onStepButtonClick;
-    public event System.Action<string> onShowFullLog;
-    public event System.Action<string> onShowFullStatus;
+    public System.Action onStopButtonClick;
+    public System.Action onResetButtonClick;
+    public System.Action onPlayPauseButtonClick;
+    public System.Action onStepButtonClick;
+    public System.Action<string> onShowFullLog;
+    public System.Action<string> onShowFullStatus;
+    public System.Action onShowStorage;
+    public System.Action onClearStorage;
 
     private void MakeInfoUI()
     {
@@ -648,6 +657,21 @@ namespace ONICPU
           {
             outputValueTexts[i] = UIUtils.AddTextLine("", $"OutputValue{i}", rightWidth2, 15, leftWidth, -y, ProgramStatusLines); y += 15;
           }
+          y += 20;
+          UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_STORAGES"), "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, null, 16); y += 20;
+
+          UIUtils.AddButtonLine("",
+            "STRINGS.UI.UISIDESCREENS.FCPU.SHOW_STORAGE_BUTTON",
+            "STRINGS.UI.UISIDESCREENS.FCPU.SHOW_STORAGE_BUTTON_TOOLTIP",
+            leftWidth + 100, -y, ProgramStatusLines, ShowStorage, 100, 23
+          ); y += 23;
+
+          UIUtils.AddButtonLine("",
+            "STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_STORAGE_BUTTON",
+            "STRINGS.UI.UISIDESCREENS.FCPU.CLEAR_STORAGE_BUTTON_TOOLTIP",
+            leftWidth + 100, -y, ProgramStatusLines, ClearStorage, 100, 23
+          ); y += 23;
+
           y += 20;
           UIUtils.AddTextLine(Utils.GetLocalizeString("STRINGS.UI.UISIDESCREENS.FCPU.SUB_TITLE_LOGS"), "Text", rightWidth2, 20, leftWidth, -y, ProgramStatusLines, null, 16); y += 20;
 

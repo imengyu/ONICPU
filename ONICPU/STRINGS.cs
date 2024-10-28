@@ -221,10 +221,15 @@
           public static LocString STEP_BUTTON_TOOLTIP = "Step over";
           public static LocString CLEAR_BUTTON = "Clear";
           public static LocString CLEAR_BUTTON_TOOLTIP = "Clear all logs";
+          public static LocString SHOW_STORAGE_BUTTON = "Storage";
+          public static LocString SHOW_STORAGE_BUTTON_TOOLTIP = "Display a snapshot of the data currently stored in the CPU unit";
+          public static LocString CLEAR_STORAGE_BUTTON = "Clear";
+          public static LocString CLEAR_STORAGE_BUTTON_TOOLTIP = "Clear the data currently stored in the CPU unit";
 
           public static LocString EDITOR_TITLE = "Edit program for this CPU Unit";
           public static LocString EDITOR_LOG_TITLE = "Log details";
           public static LocString EDITOR_STATUS_TITLE = "Status details";
+          
           public static LocString EDITOR_CLOSE = "Close";
           public static LocString EDITOR_COMPILE = "Compile";
           public static LocString EDITOR_COPY = "Copy to clipboard";
@@ -238,6 +243,7 @@
           public static LocString SUB_TITLE_OUTPUTS = "Outputs";
           public static LocString SUB_TITLE_REGS = "Registers";
           public static LocString SUB_TITLE_MEM = "Memory";
+          public static LocString SUB_TITLE_STORAGES = "Storage";
 
           public static LocString NO_LOGS = "No log output";
 

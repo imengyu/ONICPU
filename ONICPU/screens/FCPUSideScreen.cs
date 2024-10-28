@@ -70,7 +70,7 @@ namespace ONICPU.screens
         speedControl.options.Add(new Dropdown.OptionData() { text = $"{sp}x ({sp * 5}hz)" });
       }
       speedControl.value = target.CPUSpeed;
-      requireENCheck.Checked = target.requireENCheck;
+      requireENCheck.SetCheckedNoEvent(target.requireENCheck);
     }
   }
 }
