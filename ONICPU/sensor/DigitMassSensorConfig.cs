@@ -33,7 +33,7 @@ public class DigitMassSensorConfig : IBuildingConfig
     BuildingConfigManager.Instance.IgnoreDefaultKComponent(typeof(RequiresFoundation), prefab_tag);
     SimCellOccupier simCellOccupier = go.AddOrGet<SimCellOccupier>();
     simCellOccupier.doReplaceElement = true;
-    simCellOccupier.movementSpeedMultiplier = DUPLICANTSTATS.MOVEMENT.BONUS_2;
+    simCellOccupier.movementSpeedMultiplier = DUPLICANTSTATS.MOVEMENT_MODIFIERS.BONUS_2;
     simCellOccupier.notifyOnMelt = true;
   }
 
