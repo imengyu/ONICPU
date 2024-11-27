@@ -1,0 +1,62 @@
+name: Bug Report (English)
+description: This template was translated by AI
+title: '[Bug]'
+labels: ['bug']
+body:
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before asking...
+      description: |
+        Please ensure you’ve completed the following before submitting
+      options:
+        - label: I understand that the issue is for feedback and troubleshooting, not for casual comments, and I will provide as much information as possible to help resolve the issue
+          required: true
+        - label: I have provided a concise and clear title, so developers can quickly determine the issue when browsing the Issue list. Not something vague like “a suggestion” or “got stuck”
+          required: true
+        - label: I am using the latest update version, have reviewed release notes and any unreleased updates in Pull Requests to ensure the bug is not already fixed
+          required: true
+        - label: I have checked the Pinned Issues (Announcements), Open Issues, and Closed Issues to confirm my issue hasn't already been mentioned
+          required: true
+  - type: textarea
+    id: describe
+    attributes:
+      label: Issue Description
+      description: Please describe the problem in as much detail as possible
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: Version
+      description: |
+        Provide the version information. The game version can be found on the main game page, in a format like U52-626616, and the Mod update date is in the “Updated on” section on the mod’s workshop page.
+      placeholder: |
+        Game Version:
+        Mod Update Date:
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Used JS or Assembly Code
+      placeholder: |
+        If the code is too long, consider uploading it as a file
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or Videos
+      description: |
+        Usually a screenshot of “Automation Overview” in the game. Avoid using videos unless necessary
+    validations:
+      required: true
+  - type: textarea
+    id: others
+    attributes:
+      label: Anything else?
+      description: |
+        Anything else that helps us understand the problem you’re facing
+    validations:
+      required: false

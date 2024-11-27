@@ -365,3 +365,4 @@ FodyWeavers.xsd
 
 # VScode setting file
 .vscode/settings.json
+.prettierrc
