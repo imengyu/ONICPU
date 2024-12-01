@@ -938,25 +938,32 @@ namespace ONICPU
             if (CPUType == FCPUType.JavaScript)
             {
               var sb = new StringBuilder();
-              var js = JsonConvert.DeserializeObject<Dictionary<string, object>>(cpuStorageData);
-              var len = 0;
-              foreach (var item in js)
+              var js = string.IsNullOrEmpty(cpuStorageData) ?
+                null :
+                JsonConvert.DeserializeObject<Dictionary<string, object>>(cpuStorageData);
+              if (js == null || js.Count == 0)
               {
-                sb.Append(item.Key);
-                sb.Append(" : ");
-                sb.AppendLine(item.Value.ToString());
-
-                if (len > 30)
-                {
-                  sb.Append("... (");
-                  sb.Append(js.Count - len);
-                  sb.Append("+)");
-                }
-
-                len++;
-              }
-              if (js.Count == 0)
                 sb.Append("Empty, No storaged data");
+              }
+              else
+              { 
+                var len = 0;
+                foreach (var item in js)
+                {
+                  sb.Append(item.Key);
+                  sb.Append(" : ");
+                  sb.AppendLine(item.Value.ToString());
+
+                  if (len > 30)
+                  {
+                    sb.Append("... (");
+                    sb.Append(js.Count - len);
+                    sb.Append("+)");
+                  }
+
+                  len++;
+                }
+              }
 
               UIUtils.ShowMessageModal(
                 "storage",
