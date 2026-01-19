@@ -49,10 +49,9 @@ public class DigitDuplicantSensor : DigitCommonSensor, ISim1000ms
 	}
 
 	protected override void OnCleanUp()
-	{
-		GameScenePartitioner.Instance.Free(ref pickupablesChangedEntry);
-		MinionGroupProber.Get().ReleaseProber(this);
-		base.OnCleanUp();
+  {
+    GameScenePartitioner.Instance.Free(ref pickupablesChangedEntry);
+    base.OnCleanUp();
 	}
 
 	public void Sim1000ms(float dt)
